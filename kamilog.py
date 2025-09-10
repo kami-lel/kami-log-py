@@ -1,9 +1,14 @@
-"""kamilog.py"""
+"""kamilog.py
+
+
+:example:
+"""
 
 # TODO module docstring
 
 # todo allow use relative time
 # todo time allow omit date
+# todo include logger as message
 
 import logging
 from logging import Formatter, StreamHandler
