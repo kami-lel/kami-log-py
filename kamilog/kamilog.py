@@ -1,11 +1,15 @@
-"""kamilog.py: Customized Logging Output Module
+"""kamilog: Customized Logging Output Module
 
 This script provides a simple interface to obtain Python loggers with a
 customized logging output format. The format includes timestamps and padded
 log level names for cleaner, more uniform log display.
 
-Installation:
-Copy the single script `kamilog.py` into your current project folder.
+
+
+
+
+Installation as Script:
+Copy the single script `./kamilog/kamilog.py` into your project folder.
 
 Example directory structure::
 
@@ -13,8 +17,39 @@ Example directory structure::
     ├── kamilog.py
     └── main.py
 
-Usage:
+In `main.py`, import the module as follows::
 
+    import kamilog
+
+
+
+
+
+Installation as Module:
+Copy the entire `kamilog` folder into your project's source folder.
+
+Example directory structure::
+
+    your_project/
+    ├── project_abc/
+    │   ├── kamilog/
+    │   │   ├── __init__.py
+    │   │   └── kamilog.py
+    │   ├── module_a/
+    │   │   └── some_code.py
+    │   └── module_b/
+    │       └── other_code.py
+    └── setup.py
+
+Then you can import `kamilog` anywhere within the project like this::
+
+    from project_abc import kamilog
+
+
+
+
+
+Usage:
 Use ``kamilog.getLogger()` (in places of `logging.getLogger()`)
 to get a configured logger instance::
 
@@ -57,7 +92,7 @@ Output::
 import logging
 from logging import Formatter, StreamHandler
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "kamiLeL"
 __all__ = ("getLogger",)
 
