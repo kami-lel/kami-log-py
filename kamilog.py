@@ -8,9 +8,9 @@
 import logging
 from logging import Formatter, StreamHandler
 
-__all__ = ("getLogger",)
 __version__ = "1.0.0"
 __author__ = "kamiLeL"
+__all__ = ("getLogger",)
 
 
 MESSAGE_FORMAT = "[%(asctime)s] %(levelname)s: %(message)s"
