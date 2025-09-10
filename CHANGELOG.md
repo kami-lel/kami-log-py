@@ -37,6 +37,27 @@
 
 
 
+
+
+
+## [1.0.0] - 2025-09-10
+
+### Added
+
+- basic function implemented in `kamilog.py`
+
+
+
+
+
+
+
+
+
+
+
+
+
 [unreleased]: https://github.com/kami-lel/kaye/compare/v1.0.0...dev
 [1.0.0]: https://github.com/kami-lel/kaye/releases/tag/v1.0.0
 

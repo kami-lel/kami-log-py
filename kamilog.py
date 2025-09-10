@@ -6,9 +6,9 @@
 
 # TODO module docstring
 
-# todo allow use relative time
-# todo time allow omit date
-# todo include logger as message
+# todo option to use relative time
+# todo option to omit date in time
+# todo include logger name in the message
 
 import logging
 from logging import Formatter, StreamHandler
@@ -78,7 +78,7 @@ def getLogger(name=None):
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    # todo add file handler
+    # todo add file handler option
 
     _INITIALIZED_LOGGERS.append(name)
 
