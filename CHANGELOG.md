@@ -58,8 +58,8 @@
 
 
 
-[unreleased]: https://github.com/kami-lel/kaye/compare/v1.0.0...dev
-[1.0.0]: https://github.com/kami-lel/kaye/releases/tag/v1.0.0
+[unreleased]: https://github.com/kami-lel/kami-log-py/compare/v1.0.0...dev
+[1.0.0]: https://github.com/kami-lel/kami-log-py/releases/tag/v1.0.0
 
 
 
