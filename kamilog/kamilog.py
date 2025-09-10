@@ -92,7 +92,7 @@ Output::
 import logging
 from logging import Formatter, StreamHandler
 
-__version__ = "1.0.1-alpha"
+__version__ = "1.1.0"
 __author__ = "kamiLeL"
 __all__ = ("getLogger",)
 
