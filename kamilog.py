@@ -2,6 +2,9 @@
 
 # TODO module docstring
 
+# todo allow use relative time
+# todo time allow omit date
+
 import logging
 from logging import Formatter, StreamHandler
 
@@ -10,7 +13,10 @@ __version__ = "1.0.0"
 __author__ = "kamiLeL"
 
 
-_INITIALIZED_LOGGERS = []
+MESSAGE_FORMAT = "[%(asctime)s] %(levelname)s: %(message)s"
+
+
+_PADDED_LEVELNAMES = ("DEBUG", "INFO ", "WARN ", "ERROR", "CRIT ")
 
 
 def _levelno2padded_levelname(levelno):
@@ -20,27 +26,38 @@ def _levelno2padded_levelname(levelno):
     :return: padded level name, always 5 letter width
     :rtype: str
     """
-    if levelno <= 10:
-        return "DEBUG"
-    elif levelno <= 20:
-        return "INFO "
-    elif levelno <= 30:
-        return "WARN "
-    elif levelno <= 40:
-        return "ERROR"
-    else:
-        return "CRIT "
+    return _PADDED_LEVELNAMES[levelno // 10 - 1]
 
 
-class _KamiLogFormatter(Formatter):
+class _LogFormatter(Formatter):
+
+    def __init__(
+        self,
+        fmt=MESSAGE_FORMAT,
+        datefmt=None,
+        style="%",
+        validate=True,
+        *,
+        defaults=None
+    ):
+        super().__init__(fmt, datefmt, style, validate, defaults=defaults)
 
     def format(self, record):
-        # TODO implement code
+        record.levelname = _levelno2padded_levelname(record.levelno)
         return super().format(record)
 
 
-def getLogger(name):
-    # TODO docstring
+_INITIALIZED_LOGGERS = []
+
+
+def getLogger(name=None):
+    """
+    :param name: logger name
+    :type name: str
+    :return: a logger with the `name`, create if non-existence;
+            root logger if `name` is `None`
+    :rtype: logging.Logger
+    """
     global _INITIALIZED_LOGGERS
 
     logger = logging.getLogger(name)
@@ -52,7 +69,7 @@ def getLogger(name):
     # init loggers  ============================================================
     # console stream handler  --------------------------------------------------
     console_handler = StreamHandler()
-    console_formatter = _KamiLogFormatter()
+    console_formatter = _LogFormatter()
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
