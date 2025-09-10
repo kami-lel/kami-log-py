@@ -57,7 +57,7 @@ Output::
 import logging
 from logging import Formatter, StreamHandler
 
-__version__ = "1.0.0"
+__version__ = "1.0.1-alpha"
 __author__ = "kamiLeL"
 __all__ = ("getLogger",)
 
