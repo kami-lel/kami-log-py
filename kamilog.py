@@ -1,10 +1,54 @@
-"""kamilog.py
+"""kamilog.py: Customized Logging Output Module
 
+This script provides a simple interface to obtain Python loggers with a
+customized logging output format. The format includes timestamps and padded
+log level names for cleaner, more uniform log display.
 
-:example:
+Installation:
+Copy the single script `kamilog.py` into your current project folder.
+
+Example directory structure::
+
+    your_project/
+    ├── kamilog.py
+    └── main.py
+
+Usage:
+
+Use ``kamilog.getLogger()` (in places of `logging.getLogger()`)
+to get a configured logger instance::
+
+    import logging
+    import kamilog
+
+    my_logger = kamilog.getLogger("myLogger")
+    my_logger.setLevel(logging.DEBUG)
+
+    my_logger.debug("Debugging details here")
+    my_logger.info("Informational message")
+    my_logger.warning("Warning message")
+    my_logger.error("Error occurred!")
+    my_logger.critical("Critical issue!")
+
+    try:
+        1 / 0
+    except ZeroDivisionError as err:
+        my_logger.exception(err)
+
+Output::
+
+    [2024-06-15 14:30:00,000] DEBUG: Debugging details here
+    [2024-06-15 14:30:00,000] INFO : Informational message
+    [2024-06-15 14:30:00,000] WARN : Warning message
+    [2024-06-15 14:30:00,001] ERROR: Error occurred!
+    [2024-06-15 14:30:00,001] CRIT : Critical issue!
+    [2024-06-15 14:30:00,001] ERROR: division by zero
+    Traceback (most recent call last):
+      File "/home/kami/repos/kami-log-py/example.py", line 18, in <module>
+        1 / 0
+        ~~^~~
+    ZeroDivisionError: division by zero
 """
-
-# TODO module docstring
 
 # todo option to use relative time
 # todo option to omit date in time
