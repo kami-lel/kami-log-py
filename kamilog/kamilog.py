@@ -83,6 +83,27 @@ Output::
         1 / 0
         ~~^~~
     ZeroDivisionError: division by zero
+
+
+
+verbosity and logging level:
+
+Set up parser with options of `-v/--verbose` and `-q/--quiet`::
+
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    add_verbose_arguments(parser)
+
+After parsing, set logging level of logger by verbosity of this parser::
+
+    args = parser.parse_args()
+    set_logging_level_by_verbosity(args)
+
+Alternatively, calc the verbosity as a number::
+
+    print(calc_verbosity(args))  # 1
+
 """
 
 # TODO mpv docstring & readme

@@ -20,6 +20,9 @@
 ## [Unreleased]
 
 ### Added
+
+- function related to verbosity and logging levels
+
 ### Changed
 ### Deprecated
 ### Removed
