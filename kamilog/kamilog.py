@@ -103,10 +103,8 @@ After parsing, set logging level of logger by verbosity of this parser::
 Alternatively, calc the verbosity as a number::
 
     print(calc_verbosity(args))  # 1
-
 """
 
-# FIXME write tests
 # todo option to use relative time
 # todo option to omit date in time
 # todo include logger name in the message
@@ -224,7 +222,7 @@ def calc_verbosity(namespace):
     no upper/lower bounds
 
 
-    :param namespace: parsed from parser with --verbose &qaqaaaaa --quiet options
+    :param namespace: parsed from parser with --verbose & --quiet options
     :type namespace: argparse.Namespace
     :return: verbosity number
     :rtype: int
@@ -234,7 +232,7 @@ def calc_verbosity(namespace):
     if hasattr(namespace, "verbose"):
         verbosity += namespace.verbose
     if hasattr(namespace, "quiet"):
-        verbosity += namespace.quiet
+        verbosity -= namespace.quiet
 
     return verbosity
 
@@ -267,4 +265,5 @@ def set_logging_level_by_verbosity(namespace, logger_name=None):
     else:
         level = logging.CRITICAL + 1
 
-    logging.getLogger(logger_name).setLevel(level)
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(level)
