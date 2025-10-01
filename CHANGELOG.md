@@ -37,6 +37,29 @@
 
 
 
+
+
+
+## [1.2.0] - 2025-10-01
+
+### Added
+
+- function related to verbosity and logging levels
+
+  - related tests
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## [1.1.0] - 2025-09-10
 
 ### Added
@@ -77,7 +100,8 @@
 
 
 
-[unreleased]: https://github.com/kami-lel/kami-log-py/compare/v1.1.0...dev
+[unreleased]: https://github.com/kami-lel/kami-log-py/compare/v1.2.0...dev
+[1.2.0]: https://github.com/kami-lel/kami-log-py/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/kami-lel/kami-log-py/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/kami-lel/kami-log-py/releases/tag/v1.0.0
 
