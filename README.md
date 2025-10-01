@@ -1,5 +1,12 @@
 # kami-log-py README 📝
 
+<!-- 
+todo option to use relative time
+todo option to omit date in time
+todo include logger name in the message
+todo add file handler option for getLogger
+-->
+
 ## 🚀 Features
 
 - Custom log message formatting with timestamp and padded log level names

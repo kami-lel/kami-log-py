@@ -105,14 +105,10 @@ Alternatively, calc the verbosity as a number::
     print(calc_verbosity(args))  # 1
 """
 
-# todo option to use relative time
-# todo option to omit date in time
-# todo include logger name in the message
-
 import logging
 from logging import Formatter, StreamHandler
 
-__version__ = "1.2.0"
+__version__ = "1.2.1-alpha"
 __author__ = "kamiLeL"
 __all__ = ("getLogger",)
 
