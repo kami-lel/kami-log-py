@@ -85,6 +85,8 @@ Output::
     ZeroDivisionError: division by zero
 """
 
+# TODO mpv docstring & readme
+# FIXME write tests
 # todo option to use relative time
 # todo option to omit date in time
 # todo include logger name in the message
@@ -193,7 +195,7 @@ def add_verbose_arguments(parser):
 
 def calc_verbosity(namespace):
     """
-    calculate a **verbosity** value from --verbose &/ --quiet flags
+    calculate a **verbosity** value from --verbose &/ --quiet options
     contained in ``namespace``
 
     verbosity default to 0,
@@ -219,12 +221,20 @@ def calc_verbosity(namespace):
 
 def set_logging_level_by_verbosity(namespace, logger_name=None):
     """
-    _summary_
+    set **logging level** of a logger based on *verbosity* calculated
+    from --verbose &/ --quiet options contained in ``namespace``
 
-    :param namespace: parsed from parser with --verbose &/
-    :type namespace: _type_
-    :param logger_name: _description_, defaults to None
-    :type logger_name: _type_, optional
+    - ``-vv`` (or more): DEBUG
+    - ``-v``: INFO
+    - no option: WARNING
+    - ``-q`` (or more): all message suppressed, even CRITICAL
+
+
+    :param namespace: parsed from parser with --verbose &/ --quiet
+    :type namespace: argparse.Namespace
+    :param logger_name: set specific logger with this name
+            defaults to None, set root logger
+    :type logger_name: str, optional
     """
     verbosity = calc_verbosity(namespace)
 
@@ -234,8 +244,6 @@ def set_logging_level_by_verbosity(namespace, logger_name=None):
         level = logging.INFO
     elif verbosity == 0:
         level = logging.WARNING
-    elif verbosity == -1:
-        level = logging.ERROR
     else:
         level = logging.CRITICAL + 1
 
