@@ -97,9 +97,9 @@ __author__ = "kamiLeL"
 __all__ = ("getLogger",)
 
 
+# customized logger  ###########################################################
+
 MESSAGE_FORMAT = "[%(asctime)s] %(levelname)s: %(message)s"
-
-
 _PADDED_LEVELNAMES = ("DEBUG", "INFO ", "WARN ", "ERROR", "CRIT ")
 
 
@@ -162,3 +162,20 @@ def getLogger(name=None):
     _INITIALIZED_LOGGERS.append(name)
 
     return logger
+
+
+# verbose level  ###############################################################
+
+
+def add_verbose_arguments(parser):
+    # TODO add help
+    parser.add_argument("-v", "--verbose", action="count", default=0)
+    parser.add_argument("-q", "--quiet", action="count", default=0)
+
+
+def calc_verbose_level(namespace):
+    pass  # TODO
+
+
+def set_logger_by_verbose_level(namespace):
+    pass  # TODO
