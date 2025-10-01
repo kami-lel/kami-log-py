@@ -90,7 +90,7 @@ from project_abc import kamilog
 
 ## Usage
 
-Use ``kamilog.getLogger()` (in places of `logging.getLogger()`)
+Use `kamilog.getLogger()` (in places of `logging.getLogger()`)
 to get a configured logger instance
 
 ```python
