@@ -173,8 +173,6 @@ def getLogger(name=None):
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    # todo add file handler option
-
     _INITIALIZED_LOGGERS.append(name)
 
     return logger
