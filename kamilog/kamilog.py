@@ -164,18 +164,79 @@ def getLogger(name=None):
     return logger
 
 
-# verbose level  ###############################################################
+# verbosity & logging level  ###################################################
 
 
 def add_verbose_arguments(parser):
-    # TODO add help
-    parser.add_argument("-v", "--verbose", action="count", default=0)
-    parser.add_argument("-q", "--quiet", action="count", default=0)
+    """
+    add -v/--verbose and -q/--quiet options to ``parser``
 
 
-def calc_verbose_level(namespace):
-    pass  # TODO
+    :param parser:
+    :type parser: argparse.ArgumentParser
+    """
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="make verbose; each -v/--verbose increase verbosity value by 1",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="count",
+        default=0,
+        help="make quiet; each -q/--quiet decrease verbosity value by 1",
+    )
 
 
-def set_logger_by_verbose_level(namespace):
-    pass  # TODO
+def calc_verbosity(namespace):
+    """
+    calculate a **verbosity** value from --verbose &/ --quiet flags
+    contained in ``namespace``
+
+    verbosity default to 0,
+    each -v/--verbose flag will +1 to verbosity,
+    each -q/--quiet flag will -1 to verbosity,
+    no upper/lower bounds
+
+
+    :param namespace: parsed from parser with --verbose &qaqaaaaa --quiet options
+    :type namespace: argparse.Namespace
+    :return: verbosity number
+    :rtype: int
+    """
+    verbosity = 0
+
+    if hasattr(namespace, "verbose"):
+        verbosity += namespace.verbose
+    if hasattr(namespace, "quiet"):
+        verbosity += namespace.quiet
+
+    return verbosity
+
+
+def set_logging_level_by_verbosity(namespace, logger_name=None):
+    """
+    _summary_
+
+    :param namespace: parsed from parser with --verbose &/
+    :type namespace: _type_
+    :param logger_name: _description_, defaults to None
+    :type logger_name: _type_, optional
+    """
+    verbosity = calc_verbosity(namespace)
+
+    if verbosity >= 2:
+        level = logging.DEBUG
+    elif verbosity == 1:
+        level = logging.INFO
+    elif verbosity == 0:
+        level = logging.WARNING
+    elif verbosity == -1:
+        level = logging.ERROR
+    else:
+        level = logging.CRITICAL + 1
+
+    logging.getLogger(logger_name).setLevel(level)
