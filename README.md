@@ -142,7 +142,7 @@ args = parser.parse_args()
 set_logging_level_by_verbosity(args)
 ```
 
-Alternatively, calc the verbosity as a number:
+Alternatively, calculate and get the verbosity value as a `int`:
 
 ```python
 print(calc_verbosity(args))  # 1

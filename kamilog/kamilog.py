@@ -106,7 +106,6 @@ Alternatively, calc the verbosity as a number::
 
 """
 
-# TODO mpv docstring & readme
 # FIXME write tests
 # todo option to use relative time
 # todo option to omit date in time
