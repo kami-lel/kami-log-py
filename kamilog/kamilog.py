@@ -110,8 +110,12 @@ from logging import Formatter, StreamHandler
 
 __version__ = "1.2.1-alpha"
 __author__ = "kamiLeL"
-__all__ = ("getLogger",)
-
+__all__ = (
+    "getLogger",
+    "add_verbose_arguments",
+    "calc_verbosity",
+    "set_logging_level_by_verbosity",
+)
 
 # customized logger  ###########################################################
 
