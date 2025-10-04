@@ -21,6 +21,9 @@
 
 ### Added
 ### Changed
+
+- improve help message for verbosity arguments
+
 ### Deprecated
 ### Removed
 ### Fixed

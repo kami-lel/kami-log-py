@@ -198,14 +198,14 @@ def add_verbose_arguments(parser):
         "--verbose",
         action="count",
         default=0,
-        help="make verbose; each -v/--verbose increase verbosity value by 1",
+        help="make verbose, each -v/--verbose increase verbosity by 1",
     )
     parser.add_argument(
         "-q",
         "--quiet",
         action="count",
         default=0,
-        help="make quiet; each -q/--quiet decrease verbosity value by 1",
+        help="make quiet, each -q/--quiet decrease verbosity by 1",
     )
 
 
