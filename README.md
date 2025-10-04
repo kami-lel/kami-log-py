@@ -4,6 +4,9 @@
 todo option to use relative time
 todo option to omit date in time
 todo include logger name in the message
+todo use emoji if console supported
+todo use ascii coloring if console supported
+todo send to stdout & stderr separately
 todo add file handler option for getLogger
 -->
 
