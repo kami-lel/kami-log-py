@@ -8,6 +8,7 @@ todo use emoji if console supported
 todo use ascii coloring if console supported
 todo send to stdout & stderr separately
 todo add file handler option for getLogger
+Todo use HU to check to AMs are included in files under kamilog
 -->
 
 ## 🚀 Features
