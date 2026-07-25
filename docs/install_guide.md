@@ -29,6 +29,9 @@ install kamilog via `pip`. After either method below, import with:
 import kamilog
 ```
 
+`pip install` also registers the `kamilog` shell command
+(`console_scripts` entry point); no separate step needed.
+
 
 
 

@@ -1,9 +1,9 @@
 # kamilog README
 
 <!--
-FIXME kamilog as command
-Todo a fuller set of docs
-Todo add cli -h command
+HACK rm requirements.txt
+TODO a fuller set of docs
+TODO add cli -h command doc
 -->
 
 
@@ -41,9 +41,10 @@ A lightweight Python logging wrapper with structured output, custom log levels, 
 
 #### 💻 Command-Line Interface
 
+- Installed as the `kamilog` shell command via the package's `console_scripts` entry point
 - Subcommands for comment banners (`cb`, `cb0`) and logging (`logger`)
 - Each subcommand carries comprehensive `-h`/`--help` text — the de facto CLI reference
-- Run `python kamilog/kamilog.py -h` to list subcommands, then `python kamilog/kamilog.py <subcommand> -h` for its full options
+- Run `kamilog -h` to list subcommands, then `kamilog <subcommand> -h` for its full options
 
 ---
 
