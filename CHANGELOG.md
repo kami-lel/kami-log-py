@@ -30,10 +30,14 @@ bug using different logger to print & diff only can produce confusing result
 - optional `LOGGER_NAME` positional argument on the CLI `logger` subcommand — passed to `getLogger()`, letting stdin be logged under a named logger instead of only the root logger
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
 - `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present and falls back to passing stdin through unchanged (`cat`) otherwise, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`
+- `-N, --no-newline` CLI flag, shared by the `cb`, `cb0`, and `logger` subcommands — trims the trailing newline from the printed output; on `logger`, only the final stdin line's newline is suppressed, internal record breaks are kept
+- `tests/cli/` — first dedicated test coverage for the CLI subcommands, covering the shared `-N`/`--no-newline` and `-C`/`--no-color` flags
 
 ### Changed
 
 - dev-only test dependency (`pytest`) now declared via a PEP 735 `[dependency-groups]` table in `pyproject.toml`, installed with `pip install -e . --group dev`
+- `-C, --no-color` CLI flag moved from the `logger` subcommand onto a shared parent parser, so `cb` and `cb0` now also accept it to force plain, uncolored output
+- `-w, --line-width` and `-e, --stderr` CLI flags, previously declared separately in `cb` and `cb0`, now come from one shared parent parser inherited by both subcommands
 
 ### Deprecated
 
