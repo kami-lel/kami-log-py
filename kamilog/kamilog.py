@@ -1156,7 +1156,8 @@ verbosity threshold decides which records actually print
 
 
 example:
-  echo 'disk full' | python kamilog.py logger error"""
+  echo 'disk full' | python kamilog.py logger error
+  echo 'disk full' | python kamilog.py logger error my_module"""
 
 # level Name to numeric level, keyed lowercase
 _LOGGER_LEVEL_MAP = {
@@ -1193,6 +1194,7 @@ def _logger_parser_main(args):
     level = _LOGGER_LEVEL_MAP[args.level.lower()]  # resolve Level name
     datefmt = _LOGGER_TIME_FORMAT_MAP[args.time_format]  # resolve Time fmt
     logger = getLogger(
+        args.name,
         datefmt=datefmt,
         disable_color=args.no_color,
         disable_diff_only_compression=args.no_diff_only,
@@ -1220,6 +1222,13 @@ def _register_logger_parser(cli_subparser):
         "level",
         choices=list(_LOGGER_LEVEL_MAP),
         help="log level name",
+    )
+    logger_parser.add_argument(
+        "name",
+        nargs="?",
+        default=None,
+        metavar="LOGGER_NAME",
+        help="logger name; default=root logger",
     )
     logger_parser.add_argument(
         "-t",
