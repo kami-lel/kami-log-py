@@ -1731,6 +1731,45 @@ def gen_comment_banner_zero(
     return "\n".join(formatted_lines)
 
 
+# shared parsers  ==============================================================
+
+# parent parser for flags shared by every subcommand
+_common_parser = ArgumentParser(add_help=False)
+_common_parser.add_argument(
+    "-N",
+    "--no-newline",
+    action="store_true",
+    help="omit the trailing newline after output",
+)
+_common_parser.add_argument(
+    "-C",
+    "--no-color",
+    action="store_true",
+    help="disable ANSI color output",
+)
+
+# parent parser for flags shared by the banner subcommands
+_banner_parser = ArgumentParser(add_help=False)
+_banner_parser.add_argument(
+    "-w",
+    "--line-width",
+    type=int,
+    default=80,
+    metavar="LINE_WIDTH",
+    help="total character width of output line; default 80",
+)
+_banner_parser.add_argument(
+    "-e",
+    "--stderr",
+    action="store_true",
+    help="print to stderr (instead of stdout)",
+)
+
+
+def _calc_line_end(args):
+    return "" if args.no_newline else "\n"
+
+
 # comment banner parser  =======================================================
 
 _COMMENT_BANNER_HELP = "print stdin content padded to line width"

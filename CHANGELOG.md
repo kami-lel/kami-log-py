@@ -1,7 +1,6 @@
 
 
 <!--
-HACK define a common parser
 BUG formally regulate the newline
 todo smart time print
 todo cli logger: implement relative time
