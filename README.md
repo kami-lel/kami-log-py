@@ -2,6 +2,7 @@
 
 <!--
 Fixme kamilog as command
+Todo a fuller set of docs
 Todo add cli -h command
 -->
 
