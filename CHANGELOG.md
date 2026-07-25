@@ -28,11 +28,17 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Added
 
+- `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
+
 ### Changed
+
+- dev-only test dependency (`pytest`) now declared via a PEP 735 `[dependency-groups]` table in `pyproject.toml`, installed with `pip install -e . --group dev`
 
 ### Deprecated
 
 ### Removed
+
+- `requirements.txt` — superseded by the `dev` dependency group in `pyproject.toml`
 
 ### Fixed
 
