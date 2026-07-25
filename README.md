@@ -1,5 +1,11 @@
 # kamilog README
 
+<!--
+Fixme kamilog as command
+Todo add cli -h command
+-->
+
+
 A lightweight Python logging wrapper with structured output, custom log levels, combinable ANSI color styling, and flexible timestamp options.
 
 ## Features
