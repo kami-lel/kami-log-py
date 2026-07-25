@@ -1847,7 +1847,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
 # CLI main parser  #############################################################
 
 _cli_parser = ArgumentParser(
-    prog="kamilog",
+    prog="kamilog[.py]",
     description="kamilog CLI: utilities for formatted output and logging",
 )
 _cli_parser.set_defaults(func=lambda _: _cli_parser.print_help())
