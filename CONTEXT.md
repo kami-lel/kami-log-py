@@ -1,6 +1,6 @@
 # kamilog CONTEXT
 
-*Last updated: 2026-07-17 - v2.8.0*
+*Last updated: 2026-07-26 - v2.8.0*
 
 ## Project Overview
 
@@ -260,7 +260,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - `_register_comment_banner_zero_parser(cli_subparser)` — builds and attaches the `comment_banner_zero` / `cb0` subcommand
 - `_CB0_HELP` — shared help/description string for the CB0 subcommand
 - `_register_logger_parser(cli_subparser)` — builds and attaches the `logger` / `l` subcommand
-- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level
+- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(args.name, datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level
 - `_LOGGER_HELP` / `_LOGGER_DESCRIPTION` — shared help and description strings for the subcommand
 
 **Comment Banner subcommand (`comment_banner` / `cb`)**:
@@ -279,12 +279,14 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 **Logger subcommand (`logger` / `l`)**:
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`; each is emitted as one log record
 - Positional: `LEVEL` — a level name from `_LOGGER_LEVEL_MAP` (`debug`, `enter`, `skip`, `succ`, `info`, `pass`, `note`, `tip`, `done`, `hint`, `important`, `warning`, `caution`, `error`, `fail`, `critical`); `notset` is excluded — `Logger.isEnabledFor(NOTSET)` is always `False`, so a record logged at that level can never actually emit
+- Positional: `LOGGER_NAME` — optional, forwarded to `getLogger()` as the `name` argument; defaults to the root logger when omitted
 - Option: `--verbosity VERBOSITY` — base verbosity offset the `-v`/`-q` counts adjust from (default 3); the resolved level acts as the print threshold, so records below it are dropped
 - Option: `-t, --time-format` — one of `time`, `time-ms`, `datetime`, `datetime-ms`, `no-time` (default `time`), mapped through `_LOGGER_TIME_FORMAT_MAP` to a `datefmt` passed into `getLogger()`; `no-time` maps to `None`
 - Option: `-C, --no-color` — force plain output; forwarded to `getLogger(disable_color=True)`
 - Option: `-D, --no-diff-only` — skip diff-only compression; forwarded to `getLogger(disable_diff_only_compression=True)`
 - Option: verbosity flags via `add_verbose_arguments` — `-v`/`-q` (step) plus `-V`/`-Q`/`--max-verbose`/`--max-quiet` (extremity)
 - Example: `echo 'disk full' | python kamilog/kamilog.py logger error`
+- Example with a named logger: `echo 'disk full' | python kamilog/kamilog.py logger error my_module`
 
 ## Public API Surface
 
