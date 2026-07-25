@@ -1202,7 +1202,12 @@ def _logger_parser_main(args):
     set_logging_level_by_namespace(
         args, verbosity=args.verbosity, logger=logger
     )
-    for line in sys.stdin.read().splitlines():  # log each stdin Line
+    lines = sys.stdin.read().splitlines()
+    last_idx = len(lines) - 1
+    for i, line in enumerate(lines):  # log each stdin Line
+        if args.no_newline and i == last_idx:  # trim only the final break
+            for handler in logger.handlers:
+                handler.terminator = ""
         logger.log(level, line)
 
 
@@ -1212,6 +1217,7 @@ def _register_logger_parser(cli_subparser):
     """
     logger_parser = cli_subparser.add_parser(
         "logger",
+        parents=[_common_parser],
         help=_LOGGER_HELP,
         description=_LOGGER_DESCRIPTION,
         formatter_class=RawDescriptionHelpFormatter,
@@ -1247,12 +1253,6 @@ def _register_logger_parser(cli_subparser):
     )
     add_verbose_arguments(logger_parser)
 
-    logger_parser.add_argument(
-        "-C",
-        "--no-color",
-        action="store_true",
-        help="disable ANSI color output",
-    )
     logger_parser.add_argument(
         "-D",
         "--no-diff-only",
