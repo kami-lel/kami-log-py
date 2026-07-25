@@ -35,6 +35,8 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Fixed
 
+- CLI `logger` subcommand no longer accepts `notset` as a `LEVEL` choice — `Logger.isEnabledFor(NOTSET)` is always `False`, so logging a record at that level silently produced no output regardless of verbosity
+
 ### Security
 
 [unreleased]: https://github.com/kami-lel/kamilog/compare/v2.8.0...dev
