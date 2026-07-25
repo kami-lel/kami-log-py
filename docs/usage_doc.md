@@ -599,3 +599,31 @@ level = kamilog.calc_logging_level(-2, namespace=args)
 
 `set_logging_level_by_namespace(args, verbosity=v)` is equivalent to
 `logger.setLevel(kamilog.calc_logging_level(v, namespace=args))`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+## `kamilog_shim`
+
+`scripts/kamilog_shim.sh` lets a plain shell script call `kamilog` safely,
+even on a machine where `kamilog` is not installed. It defines a `kamilog()`
+function that forwards to the real binary when found on `PATH`, and falls
+back to passing stdin through unchanged (`cat`) when it is not.
+
+Either **copy-paste** the full contents of `scripts/kamilog_shim.sh` directly
+into your script, or `source` it instead:
+
+```bash
+source /path/to/kamilog_shim.sh
+
+echo "hello" | kamilog
+```
