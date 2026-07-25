@@ -28,6 +28,7 @@ bug using different logger to print & diff only can produce confusing result
 ### Added
 
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
+- `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present and falls back to passing stdin through unchanged (`cat`) otherwise, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`
 
 ### Changed
 
