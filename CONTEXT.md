@@ -55,8 +55,8 @@ kamilog/
 ├── docs/
 │   ├── usage_doc.md         # public API reference with examples
 │   └── install_guide.md     # installation methods
-├── pyproject.toml           # PEP 518 build config; package metadata with dynamic version/author
-├── requirements.txt         # pytest (test-only)
+├── pyproject.toml           # PEP 518 build config; package metadata with dynamic version/author;
+│                             # dev dependency group (`pip install -e . --group dev`) adds pytest
 ├── CHANGELOG.md
 └── README.md
 ```

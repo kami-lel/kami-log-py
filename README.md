@@ -1,7 +1,6 @@
 # kamilog README
 
 <!--
-HACK rm requirements.txt
 TODO a fuller set of docs
 TODO add cli -h command doc
 -->
