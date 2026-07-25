@@ -1,8 +1,8 @@
 # kamilog README
 
 <!--
-TODO a fuller set of docs
-TODO add cli -h command doc
+Todo a fuller set of docs
+Todo add cli -h command doc
 -->
 
 
