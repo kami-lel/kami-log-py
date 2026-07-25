@@ -1,7 +1,6 @@
-# kamilog CHANGELOG
+
 
 <!--
-Bug cli logger: notset
 todo smart time print
 todo cli logger: implement relative time
 todo cli logger: allow to use already set up logger
@@ -41,6 +40,8 @@ bug using different logger to print & diff only can produce confusing result
 - `requirements.txt` — superseded by the `dev` dependency group in `pyproject.toml`
 
 ### Fixed
+
+- CLI `logger` subcommand no longer accepts `notset` as a `LEVEL` choice — `Logger.isEnabledFor(NOTSET)` is always `False`, so logging a record at that level silently produced no output regardless of verbosity
 
 ### Security
 

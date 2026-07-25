@@ -1160,7 +1160,6 @@ example:
 
 # level Name to numeric level, keyed lowercase
 _LOGGER_LEVEL_MAP = {
-    "notset": NOTSET,
     "debug": DEBUG,
     "enter": ENTER,
     "skip": SKIP,
