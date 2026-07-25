@@ -1,7 +1,6 @@
 
 
 <!--
-BUG cli logger: notset
 todo smart time print
 todo cli logger: implement relative time
 todo cli logger: allow to use already set up logger
