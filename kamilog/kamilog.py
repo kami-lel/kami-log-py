@@ -18,6 +18,7 @@ from enum import Flag, IntEnum, auto
 from logging import FileHandler, Formatter, StreamHandler
 
 __all__ = (
+    "kamilog_cli_main",
     "getLogger",
     "KamiLogger",
     "add_verbose_arguments",
@@ -1862,6 +1863,14 @@ _register_logger_parser(_cli_subparser)
 
 # Entry Point  #################################################################
 
-if __name__ == "__main__":
+
+def kamilog_cli_main():
+    """
+    run the kamilog CLI, dispatching to the parsed subcommand's handler.
+    """
     parsed_args = _cli_parser.parse_args()
     parsed_args.func(parsed_args)
+
+
+if __name__ == "__main__":
+    kamilog_cli_main()
