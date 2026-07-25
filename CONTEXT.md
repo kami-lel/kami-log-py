@@ -55,6 +55,9 @@ kamilog/
 ├── docs/
 │   ├── usage_doc.md         # public API reference with examples
 │   └── install_guide.md     # installation methods
+├── scripts/
+│   └── kamilog_shim.sh       # bash `kamilog()` fallback wrapper, meant to be copy-pasted
+│                             # or sourced into a caller's own script
 ├── pyproject.toml           # PEP 518 build config; package metadata with dynamic version/author;
 │                             # dev dependency group (`pip install -e . --group dev`) adds pytest
 ├── CHANGELOG.md
