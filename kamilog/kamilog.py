@@ -1834,13 +1834,15 @@ _CB0_HELP = "print multi-line boxed comment banner (CB0)"
 
 def _comment_banner_zero_parser_main(args):
     file = sys.stderr if args.stderr else sys.stdout
+    renderer = AnsiRenderer(file, is_disabled=args.no_color)
     lines = sys.stdin.read().splitlines()  # all lines from stdin
     banner = gen_comment_banner_zero(
         lines,
         line_width=args.line_width,
         file=file,
+        renderer=renderer,
     )
-    print(banner, file=file)
+    print(banner, file=file, end=_calc_line_end(args))
 
 
 def _register_comment_banner_zero_parser(cli_subparser):
@@ -1849,6 +1851,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
     """
     comment_banner_zero_parser = cli_subparser.add_parser(
         "comment_banner_zero",
+        parents=[_common_parser, _banner_parser],
         help=_CB0_HELP,
         description=(
             _CB0_HELP
@@ -1858,21 +1861,6 @@ def _register_comment_banner_zero_parser(cli_subparser):
         ),
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["cb0"],
-    )
-
-    comment_banner_zero_parser.add_argument(
-        "-w",
-        "--line-width",
-        type=int,
-        default=80,
-        metavar="LINE_WIDTH",
-        help="total character width of output line; default 80",
-    )
-    comment_banner_zero_parser.add_argument(
-        "-e",
-        "--stderr",
-        action="store_true",
-        help="print to stderr (instead of stdout)",
     )
 
     comment_banner_zero_parser.set_defaults(
