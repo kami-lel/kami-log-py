@@ -1950,16 +1950,24 @@ def _parse_ansi_style(raw):
         raise ArgumentTypeError(str(e))
 
 
-def _color_parser_main(args):
+def _print_colored_stdin_line(args, style):
+    """
+    read a single stdin line, apply ``style``, and print the result,
+    honoring ``-n/-N`` via ``args``
+    """
     file = sys.stdout
     renderer = AnsiRenderer(file)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
+    colored = renderer.color(content, style)
+    print(colored, file=file, end=_calc_line_end(args, raw))
+
+
+def _color_parser_main(args):
     style = AnsiStyle(0)
     for s in args.style:
         style |= s
-    colored = renderer.color(content, style)
-    print(colored, file=file, end=_calc_line_end(args, raw))
+    _print_colored_stdin_line(args, style)
 
 
 def _register_color_parser(cli_subparser):
@@ -1986,6 +1994,40 @@ def _register_color_parser(cli_subparser):
     color_parser.set_defaults(func=_color_parser_main)
 
 
+# color-grey parser  ===========================================================
+
+_COLOR_GREY_HELP = "print stdin content in grey"
+
+_COLOR_GREY_DESCRIPTION = _COLOR_GREY_HELP + """
+
+equivalent to `color GREY`
+
+content is read from stdin, as a single line
+
+example:
+  echo 'hello world' | python kamilog.py color-grey"""
+
+
+def _color_grey_parser_main(args):
+    _print_colored_stdin_line(args, AnsiStyle.GREY)
+
+
+def _register_color_grey_parser(cli_subparser):
+    """
+    register the ``color-grey`` subcommand on ``cli_subparser``
+    """
+    color_grey_parser = cli_subparser.add_parser(
+        "color-grey",
+        parents=[_common_parser],
+        help=_COLOR_GREY_HELP,
+        description=_COLOR_GREY_DESCRIPTION,
+        formatter_class=RawDescriptionHelpFormatter,
+        aliases=["cg"],
+    )
+
+    color_grey_parser.set_defaults(func=_color_grey_parser_main)
+
+
 # CLI main parser  #############################################################
 
 _cli_parser = ArgumentParser(
@@ -1999,6 +2041,7 @@ _cli_subparser = _cli_parser.add_subparsers(title="subcommands")
 # register subcommands
 
 _register_color_parser(_cli_subparser)
+_register_color_grey_parser(_cli_subparser)
 _register_comment_banner_parser(_cli_subparser)
 _register_comment_banner_zero_parser(_cli_subparser)
 _register_logger_parser(_cli_subparser)
