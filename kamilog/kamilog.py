@@ -1926,7 +1926,7 @@ _COLOR_DESCRIPTION = _COLOR_HELP + """
 content is read from stdin, as a single line
 
 example:
-  echo 'hello world' | python kamilog.py color RED,BOLD"""
+  echo 'hello world' | python kamilog.py color RED BOLD"""
 
 # FIXME include all possible values of styles
 
@@ -1947,7 +1947,10 @@ def _color_parser_main(args):
     renderer = AnsiRenderer(file)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
-    colored = renderer.color(content, args.style)
+    style = AnsiStyle(0)
+    for s in args.style:
+        style |= s
+    colored = renderer.color(content, style)
     print(colored, file=file, end=_calc_line_end(args, raw))
 
 
@@ -1967,10 +1970,11 @@ def _register_color_parser(cli_subparser):
     color_parser.add_argument(
         "style",
         metavar="STYLE",
+        nargs="+",
         type=_parse_ansi_style,
         help=(
-            "comma-separated AnsiStyle member name(s) to combine, "
-            "eg 'RED,BOLD' or 'BG_YELLOW,UNDERLINE'"
+            "one or more AnsiStyle member names to combine, "
+            "eg 'RED BOLD' or 'BG_YELLOW UNDERLINE'"
         ),
     )
 

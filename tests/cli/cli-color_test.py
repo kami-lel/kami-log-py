@@ -35,19 +35,19 @@ def _run(argv, stdin_text, stream=None):
 class TestStyleArgumentParses:
     def test_single_style_name_parses(_):
         args = _cli_parser.parse_args(["color", "RED"])
-        assert args.style == AnsiStyle.RED
+        assert args.style == [AnsiStyle.RED]
 
     def test_multiple_style_names_are_ored_together(_):
-        args = _cli_parser.parse_args(["color", "RED,BOLD"])
-        assert args.style == (AnsiStyle.RED | AnsiStyle.BOLD)
+        args = _cli_parser.parse_args(["color", "RED", "BOLD"])
+        assert args.style == [AnsiStyle.RED, AnsiStyle.BOLD]
 
     def test_style_name_is_case_insensitive(_):
-        args = _cli_parser.parse_args(["color", "red,bold"])
-        assert args.style == (AnsiStyle.RED | AnsiStyle.BOLD)
+        args = _cli_parser.parse_args(["color", "red", "bold"])
+        assert args.style == [AnsiStyle.RED, AnsiStyle.BOLD]
 
     def test_style_name_tolerates_surrounding_whitespace(_):
-        args = _cli_parser.parse_args(["color", " RED , BOLD "])
-        assert args.style == (AnsiStyle.RED | AnsiStyle.BOLD)
+        args = _cli_parser.parse_args(["color", " RED "])
+        assert args.style == [AnsiStyle.RED]
 
     def test_unknown_style_name_raises(_):
         with pytest.raises(SystemExit):
@@ -55,7 +55,7 @@ class TestStyleArgumentParses:
 
     def test_alias_parses_identically_to_full_name(_):
         args = _cli_parser.parse_args(["c", "RED"])
-        assert args.style == AnsiStyle.RED
+        assert args.style == [AnsiStyle.RED]
 
 
 class TestColorHasNoDisableFlag:
@@ -70,6 +70,14 @@ class TestColorHasNoDisableFlag:
     def test_no_color_flag_is_rejected(_):
         with pytest.raises(SystemExit):
             _cli_parser.parse_args(["color", "RED", "-C"])
+
+
+class TestMultipleStyleArgsCombineOnRender:
+    def test_multiple_styles_are_ored_before_rendering(_):
+        out = _run(["color", "RED", "BOLD"], "hi\n", stream=_FakeTtyStream())
+        assert out == AnsiRenderer(_FakeTtyStream()).color(
+            "hi", AnsiStyle.RED | AnsiStyle.BOLD
+        )
 
 
 class TestColorNewline:
