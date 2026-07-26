@@ -253,17 +253,17 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 **CLI module organization**:
 - `_cli_parser` — root ArgumentParser; only it and `_cli_subparser` are module-level CLI objects, both private under the `_cli_` prefix so they stay off the public surface
 - every subcommand is attached by a `_register_*_parser(cli_subparser)` function called on `_cli_subparser` at the bottom of the module; each builds its parser as a local, so no parser object leaks to module scope
-- `_common_parser` — `add_help=False` parent `ArgumentParser` holding `-N`/`--no-newline` and `-C`/`--no-color`; passed via `parents=` to all three subcommands, so every subcommand accepts both flags
+- `_common_parser` — `add_help=False` parent `ArgumentParser` holding a mutually exclusive `-n`/`--newline` and `-N`/`--no-newline` pair (both `dest="newline"`, default `None`) plus `-C`/`--no-color`; passed via `parents=` to all three subcommands, so every subcommand accepts all three flags
 - `_banner_parser` — `add_help=False` parent `ArgumentParser` holding `-w`/`--line-width` and `-e`/`--stderr`; passed via `parents=` to `cb` and `cb0` only
-- `_calc_line_end(args)` — maps `args.no_newline` to the `end` string (`""` or `"\n"`) passed to `print()` by the banner handlers
-- `_comment_banner_parser_main(args)` — handler that reads `content` from stdin (single line), maps CLI modes to `_gen_comment_banner_generic`, builds an `AnsiRenderer` honoring `-C`, then prints the returned line to stdout or stderr with the newline `_calc_line_end` decides
+- `_calc_line_end(args, stdin_content="")` — resolves `args.newline` to the `end` string (`""` or `"\n"`): `True` forces `"\n"`, `False` forces `""`, and `None` (the default) auto-detects from whether `stdin_content` already ends with `"\n"` — trimming if so, appending if not; used both as the banner handlers' `print()` `end` and to decide the logger's terminator suppression
+- `_comment_banner_parser_main(args)` — handler that reads the raw stdin line, derives `content` via `.rstrip("\n")`, maps CLI modes to `_gen_comment_banner_generic`, builds an `AnsiRenderer` honoring `-C`, then prints the returned line to stdout or stderr with the newline `_calc_line_end(args, raw)` decides
 - `_register_comment_banner_parser(cli_subparser)` — builds and attaches the `comment_banner` / `cb` subcommand, inheriting `_common_parser` and `_banner_parser`
 - `_COMMENT_BANNER_HELP` — shared help/description string for the subcommand
-- `_comment_banner_zero_parser_main(args)` — handler that reads `lines` from stdin (one banner line per stdin line), builds an `AnsiRenderer` honoring `-C`, calls `gen_comment_banner_zero`, then prints the returned banner with the newline `_calc_line_end` decides
+- `_comment_banner_zero_parser_main(args)` — handler that reads raw stdin, splits it into `lines` (one banner line per stdin line), builds an `AnsiRenderer` honoring `-C`, calls `gen_comment_banner_zero`, then prints the returned banner with the newline `_calc_line_end(args, raw)` decides
 - `_register_comment_banner_zero_parser(cli_subparser)` — builds and attaches the `comment_banner_zero` / `cb0` subcommand, inheriting `_common_parser` and `_banner_parser`
 - `_CB0_HELP` — shared help/description string for the CB0 subcommand
 - `_register_logger_parser(cli_subparser)` — builds and attaches the `logger` / `l` subcommand, inheriting `_common_parser`
-- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(args.name, datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level; when `-N`/`--no-newline` is set, every handler's `terminator` is switched to `""` immediately before the final line is logged, so only the trailing newline is suppressed and earlier records keep their line breaks
+- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(args.name, datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level; `_calc_line_end(args, raw) == ""` decides once whether the final stdin line's trailing newline should be suppressed — forced by `-N`/`--no-newline`, forced off by `-n`/`--newline`, or auto-detected from whether raw stdin already ends with `\n` — and only then switches every handler's `terminator` to `""` immediately before the final line is logged, so earlier records always keep their line breaks
 - `_LOGGER_HELP` / `_LOGGER_DESCRIPTION` — shared help and description strings for the subcommand
 
 **Comment Banner subcommand (`comment_banner` / `cb`)**:
@@ -271,7 +271,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Positional: `MODE` (c/center, l/left, r/right), `PADDING` (char or int 1-5)
 - Option: `-w, --line-width LINE_WIDTH` (default 80) — via `_banner_parser`
 - Option: `-e, --stderr` (output to stderr) — via `_banner_parser`
-- Option: `-N, --no-newline` (omit the trailing newline) — via `_common_parser`
+- Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
 - Option: `-C, --no-color` (force plain output) — via `_common_parser`
 - Example: `echo 'hello world' | python kamilog/kamilog.py cb c '=' -w 20`
 
@@ -279,7 +279,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`
 - Option: `-w, --line-width LINE_WIDTH` (default 80) — via `_banner_parser`
 - Option: `-e, --stderr` (output to stderr) — via `_banner_parser`
-- Option: `-N, --no-newline` (omit the trailing newline) — via `_common_parser`
+- Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
 - Option: `-C, --no-color` (force plain output) — via `_common_parser`
 - Example: `printf 'Title\nSubtitle\n' | python kamilog/kamilog.py cb0 -w 40`
 
@@ -289,7 +289,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Positional: `LOGGER_NAME` — optional, forwarded to `getLogger()` as the `name` argument; defaults to the root logger when omitted
 - Option: `--verbosity VERBOSITY` — base verbosity offset the `-v`/`-q` counts adjust from (default 3); the resolved level acts as the print threshold, so records below it are dropped
 - Option: `-t, --time-format` — one of `time`, `time-ms`, `datetime`, `datetime-ms`, `no-time` (default `time`), mapped through `_LOGGER_TIME_FORMAT_MAP` to a `datefmt` passed into `getLogger()`; `no-time` maps to `None`
-- Option: `-N, --no-newline` — suppresses only the final stdin line's trailing newline, via `_common_parser`; earlier records keep their line breaks
+- Option: `-n, --newline` / `-N, --no-newline` — forces / forces off the final stdin line's trailing newline; default auto-detects from whether raw stdin already ends with a newline, via `_common_parser`; earlier records always keep their line breaks
 - Option: `-C, --no-color` — force plain output; forwarded to `getLogger(disable_color=True)`, via `_common_parser`
 - Option: `-D, --no-diff-only` — skip diff-only compression; forwarded to `getLogger(disable_diff_only_compression=True)`
 - Option: verbosity flags via `add_verbose_arguments` — `-v`/`-q` (step) plus `-V`/`-Q`/`--max-verbose`/`--max-quiet` (extremity)
@@ -367,4 +367,4 @@ Verbosity mapping (default level is `DONE` = 25):
 
 ## Known Limitations and Future Work
 
-- Test coverage now spans verbosity helpers, comment-banner functions, `AnsiRenderer`/TTY detection (`tests/ansi/`), `_LogFormatter`/`_LogFormatEngine` (`tests/lf/`), `KamiLogger` (`tests/logger/`), `_DiffOnlyEngine`/`_DiffOnlyMsgFilter` (`tests/dof/`), `_TabAlignedLine` (`tests/tal/`), and the shared `-N`/`-C` CLI flags (`tests/cli/`), plus golden-output tests for every `examples/` demo script; the CLI subcommands' pre-existing arguments (mode, padding, width, stderr routing, level resolution, verbosity) still have no dedicated tests.
+- Test coverage now spans verbosity helpers, comment-banner functions, `AnsiRenderer`/TTY detection (`tests/ansi/`), `_LogFormatter`/`_LogFormatEngine` (`tests/lf/`), `KamiLogger` (`tests/logger/`), `_DiffOnlyEngine`/`_DiffOnlyMsgFilter` (`tests/dof/`), `_TabAlignedLine` (`tests/tal/`), and the shared `-n`/`-N`/`-C` CLI flags (`tests/cli/`), plus golden-output tests for every `examples/` demo script; the CLI subcommands' pre-existing arguments (mode, padding, width, stderr routing, level resolution, verbosity) still have no dedicated tests.
