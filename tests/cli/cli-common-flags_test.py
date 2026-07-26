@@ -4,8 +4,8 @@ cli-common-flags_test.py
 tests for the shared `-n/--newline`/`-N/--no-newline` and `-C/--no-color`
 flags inherited by the `cb`, `cb0`, and `logger` CLI subcommands via
 `_common_parser`, and
-for the `-w/--line-width` and `-e/--stderr` flags still inherited by
-`cb`/`cb0` via `_line_width_parser` and `_stderr_parser`, in `kamilog.py`
+for the `-w/--line-width` flag still inherited by `cb`/`cb0` via
+`_line_width_parser`, in `kamilog.py`
 """
 
 import io
@@ -81,12 +81,6 @@ class TestBannerFlagsStillInherited:
         argv = [subcommand] + (["c", "="] if subcommand == "cb" else [])
         args = _cli_parser.parse_args(argv + ["-w", "40"])
         assert args.line_width == 40
-
-    @pytest.mark.parametrize("subcommand", ["cb", "cb0"])
-    def test_stderr_flag_parses(_, subcommand):
-        argv = [subcommand] + (["c", "="] if subcommand == "cb" else [])
-        args = _cli_parser.parse_args(argv + ["-e"])
-        assert args.stderr is True
 
 
 class TestNoColorDisablesAnsiOutput:

@@ -1765,6 +1765,7 @@ _common_parser.add_argument(
     help="disable ANSI color output",
 )
 
+# parent parser for the line-width flag shared by the banner subcommands
 _line_width_parser = ArgumentParser(add_help=False)
 _line_width_parser.add_argument(
     "-w",
@@ -1773,14 +1774,6 @@ _line_width_parser.add_argument(
     default=80,
     metavar="LINE_WIDTH",
     help="total character width of output line; default 80",
-)
-
-_stderr_parser = ArgumentParser(add_help=False)
-_stderr_parser.add_argument(
-    "-e",
-    "--stderr",
-    action="store_true",
-    help="print to stderr (instead of stdout)",
 )
 
 
@@ -1807,7 +1800,7 @@ _COMMENT_BANNER_HELP = "print stdin content padded to line width"
 def _comment_banner_parser_main(args):
     mode_map = {"center": "c", "left": "l", "right": "r"}
     mode = mode_map.get(args.mode, args.mode)
-    file = sys.stderr if args.stderr else sys.stdout
+    file = sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
@@ -1829,7 +1822,7 @@ def _register_comment_banner_parser(cli_subparser):
     """
     comment_banner_parser = cli_subparser.add_parser(
         "comment_banner",
-        parents=[_common_parser, _line_width_parser, _stderr_parser],
+        parents=[_common_parser, _line_width_parser],
         help=_COMMENT_BANNER_HELP,
         description=(
             _COMMENT_BANNER_HELP
@@ -1863,7 +1856,7 @@ _CB0_HELP = "print multi-line boxed comment banner (CB0)"
 
 
 def _comment_banner_zero_parser_main(args):
-    file = sys.stderr if args.stderr else sys.stdout
+    file = sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
     raw = sys.stdin.read()  # all lines from stdin
     lines = raw.splitlines()
@@ -1882,7 +1875,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
     """
     comment_banner_zero_parser = cli_subparser.add_parser(
         "comment_banner_zero",
-        parents=[_common_parser, _line_width_parser, _stderr_parser],
+        parents=[_common_parser, _line_width_parser],
         help=_CB0_HELP,
         description=(
             _CB0_HELP
@@ -1922,7 +1915,7 @@ def _parse_ansi_style(raw):
 
 
 def _color_parser_main(args):
-    file = sys.stderr if args.stderr else sys.stdout
+    file = sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
@@ -1936,7 +1929,7 @@ def _register_color_parser(cli_subparser):
     """
     color_parser = cli_subparser.add_parser(
         "color",
-        parents=[_common_parser, _stderr_parser],
+        parents=[_common_parser],
         help=_COLOR_HELP,
         description=(
             _COLOR_HELP
