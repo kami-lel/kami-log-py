@@ -1939,7 +1939,6 @@ example:
   echo 'hello world' | python kamilog.py color RED BOLD"""
 
 
-
 def _parse_ansi_style(raw):
     """
     argparse ``type`` adapter for ``AnsiStyle.parse``, mapping an unknown
