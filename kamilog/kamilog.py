@@ -8,7 +8,11 @@ Q.v. https://github.com/kami-lel/kamilog for Project Main Page
 Q.v. https://github.com/kami-lel/kamilog/tree/main/docs for Documentation
 """
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import (
+    ArgumentParser,
+    ArgumentTypeError,
+    RawDescriptionHelpFormatter,
+)
 import logging
 import os
 import sys
@@ -155,6 +159,32 @@ class AnsiStyle(Flag):  # =====================================================
 
     BOLD = auto()
     UNDERLINE = auto()
+
+    # Public API  **************************************************************
+
+    @classmethod
+    def parse(cls, raw):
+        """
+        parse a comma-separated list of ``AnsiStyle`` member names into a
+        single combined ``AnsiStyle`` value.
+
+
+        :param raw: comma-separated member names, eg ``"RED,BOLD"``
+        :type raw: str
+        :return: combined style
+        :rtype: AnsiStyle
+        :raises ValueError: if ``raw`` contains an unknown member name
+        """
+        style = cls(0)
+        for name in raw.split(","):
+            name = name.strip().upper()
+            try:
+                style |= cls[name]
+            except KeyError:
+                raise ValueError(
+                    "unknown AnsiStyle member {!r}".format(name)
+                )
+        return style
 
 
 class AnsiRenderer:  # =========================================================
@@ -1156,8 +1186,8 @@ verbosity threshold decides which records actually print
 
 
 example:
-  echo 'disk full' | python kamilog.py logger error
-  echo 'disk full' | python kamilog.py logger error my_module"""
+  echo 'disk full' | kamilog logger error
+  echo 'disk full' | kamilog logger error my_module"""
 
 # level Name to numeric level, keyed lowercase
 _LOGGER_LEVEL_MAP = {
@@ -1219,7 +1249,7 @@ def _register_logger_parser(cli_subparser):
     """
     logger_parser = cli_subparser.add_parser(
         "logger",
-        parents=[_common_parser],
+        parents=[_no_color_parser],
         help=_LOGGER_HELP,
         description=_LOGGER_DESCRIPTION,
         formatter_class=RawDescriptionHelpFormatter,
@@ -1735,7 +1765,6 @@ def gen_comment_banner_zero(
 
 # shared parsers  ==============================================================
 
-# parent parser for flags shared by every subcommand
 _common_parser = ArgumentParser(add_help=False)
 _newline_group = _common_parser.add_mutually_exclusive_group()
 _newline_group.add_argument(
@@ -1754,28 +1783,22 @@ _newline_group.add_argument(
     default=None,
     help="never append a trailing newline after output",
 )
-_common_parser.add_argument(
+_no_color_parser = ArgumentParser(add_help=False, parents=[_common_parser])
+_no_color_parser.add_argument(
     "-C",
     "--no-color",
     action="store_true",
     help="disable ANSI color output",
 )
 
-# parent parser for flags shared by the banner subcommands
-_banner_parser = ArgumentParser(add_help=False)
-_banner_parser.add_argument(
+_line_width_parser = ArgumentParser(add_help=False, parents=[_no_color_parser])
+_line_width_parser.add_argument(
     "-w",
     "--line-width",
     type=int,
     default=80,
     metavar="LINE_WIDTH",
     help="total character width of output line; default 80",
-)
-_banner_parser.add_argument(
-    "-e",
-    "--stderr",
-    action="store_true",
-    help="print to stderr (instead of stdout)",
 )
 
 
@@ -1802,7 +1825,7 @@ _COMMENT_BANNER_HELP = "print stdin content padded to line width"
 def _comment_banner_parser_main(args):
     mode_map = {"center": "c", "left": "l", "right": "r"}
     mode = mode_map.get(args.mode, args.mode)
-    file = sys.stderr if args.stderr else sys.stdout
+    file = sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
@@ -1824,13 +1847,13 @@ def _register_comment_banner_parser(cli_subparser):
     """
     comment_banner_parser = cli_subparser.add_parser(
         "comment_banner",
-        parents=[_common_parser, _banner_parser],
+        parents=[_line_width_parser],
         help=_COMMENT_BANNER_HELP,
         description=(
             _COMMENT_BANNER_HELP
             + "\n\ncontent is read from stdin, as a single line\n\n"
             "example:\n"
-            "  echo 'hello world' | python kamilog.py cb c '=' -w 20"
+            "  echo 'hello world' | kamilog cb c '=' -w 20"
         ),
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["cb"],
@@ -1858,7 +1881,7 @@ _CB0_HELP = "print multi-line boxed comment banner (CB0)"
 
 
 def _comment_banner_zero_parser_main(args):
-    file = sys.stderr if args.stderr else sys.stdout
+    file = sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
     raw = sys.stdin.read()  # all lines from stdin
     lines = raw.splitlines()
@@ -1877,13 +1900,13 @@ def _register_comment_banner_zero_parser(cli_subparser):
     """
     comment_banner_zero_parser = cli_subparser.add_parser(
         "comment_banner_zero",
-        parents=[_common_parser, _banner_parser],
+        parents=[_line_width_parser],
         help=_CB0_HELP,
         description=(
             _CB0_HELP
             + "\n\nlines are read from stdin, one banner line per stdin line"
             "\n\nexample:\n"
-            "  printf 'line 1\\nline 2\\n' | python kamilog.py cb0 -w 20"
+            "  printf 'line 1\\nline 2\\n' | kamilog cb0 -w 20"
         ),
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["cb0"],
@@ -1892,6 +1915,117 @@ def _register_comment_banner_zero_parser(cli_subparser):
     comment_banner_zero_parser.set_defaults(
         func=_comment_banner_zero_parser_main
     )
+
+
+# color parser  ================================================================
+
+_COLOR_HELP = "print stdin content with ANSI style applied"
+
+_COLOR_DESCRIPTION = _COLOR_HELP + """
+
+content is read from stdin, as a single line
+
+ANSI STYLE:
+
+BOLD UNDERLINE
+
+RED YELLOW GREEN CYAN BLUE MAGENTA
+BRIGHT_RED BRIGHT_YELLOW ~~ (8 bright colors)
+BLACK GREY WHITE BRIGHT_WHITE
+
+BG_RED BG_BRIGHT_RED BG_BLACK (16 background colors)
+
+example:
+  echo 'hello world' | kamilog color RED BOLD"""
+
+
+def _parse_ansi_style(raw):
+    """
+    argparse ``type`` adapter for ``AnsiStyle.parse``, mapping an unknown
+    member name to ``ArgumentTypeError`` instead of ``ValueError``
+    """
+    try:
+        return AnsiStyle.parse(raw)
+    except ValueError as e:
+        raise ArgumentTypeError(str(e))
+
+
+def _print_colored_stdin_line(args, style):
+    """
+    read a single stdin line, apply ``style``, and print the result,
+    honoring ``-n/-N`` via ``args``
+    """
+    file = sys.stdout
+    renderer = AnsiRenderer(file)
+    raw = sys.stdin.readline()  # single line from stdin
+    content = raw.rstrip("\n")
+    colored = renderer.color(content, style)
+    print(colored, file=file, end=_calc_line_end(args, raw))
+
+
+def _color_parser_main(args):
+    style = AnsiStyle(0)
+    for s in args.style:
+        style |= s
+    _print_colored_stdin_line(args, style)
+
+
+def _register_color_parser(cli_subparser):
+    """
+    register the ``color`` subcommand on ``cli_subparser``
+    """
+    color_parser = cli_subparser.add_parser(
+        "color",
+        parents=[_common_parser],
+        help=_COLOR_HELP,
+        description=_COLOR_DESCRIPTION,
+        formatter_class=RawDescriptionHelpFormatter,
+        aliases=["c"],
+    )
+
+    color_parser.add_argument(
+        "style",
+        metavar="STYLE",
+        nargs="+",
+        type=_parse_ansi_style,
+        help= "1+ ANSI styles, v.s.",
+    )
+
+    color_parser.set_defaults(func=_color_parser_main)
+
+
+# color-grey parser  ===========================================================
+
+_COLOR_GREY_HELP = "print stdin content in grey"
+
+_COLOR_GREY_DESCRIPTION = _COLOR_GREY_HELP + """
+
+equivalent to `color GREY`
+
+content is read from stdin, as a single line
+
+example:
+  echo 'hello world' | kamilog color-grey"""
+
+
+def _color_grey_parser_main(args):
+    _print_colored_stdin_line(args, AnsiStyle.GREY)
+
+
+def _register_color_grey_parser(cli_subparser):
+    """
+    register the ``color-grey`` subcommand on ``cli_subparser``
+    """
+    color_grey_parser = cli_subparser.add_parser(
+        "color-grey",
+        parents=[_common_parser],
+        help=_COLOR_GREY_HELP,
+        description=_COLOR_GREY_DESCRIPTION,
+        formatter_class=RawDescriptionHelpFormatter,
+        aliases=["cg"],
+    )
+
+    color_grey_parser.set_defaults(func=_color_grey_parser_main)
 
 
 # CLI main parser  #############################################################
@@ -1906,6 +2040,8 @@ _cli_subparser = _cli_parser.add_subparsers(title="subcommands")
 
 # register subcommands
 
+_register_color_parser(_cli_subparser)
+_register_color_grey_parser(_cli_subparser)
 _register_comment_banner_parser(_cli_subparser)
 _register_comment_banner_zero_parser(_cli_subparser)
 _register_logger_parser(_cli_subparser)

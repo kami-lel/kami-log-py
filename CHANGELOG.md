@@ -1,7 +1,7 @@
 
 
 <!--
-Todo expose color as CLI
+todo cli color-triage-tag
 todo smart time print
 todo cli logger: implement relative time
 todo cli logger: allow to use already set up logger
@@ -32,19 +32,23 @@ bug using different logger to print & diff only can produce confusing result
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
 - `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`. Without the binary, it falls back to format-aware stdin handling: `cb`/`cb0` prefix the captured stdin with `# `, `logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or `logger` with no tag) passes stdin through unchanged (`cat`)
 - `-n, --newline` / `-N, --no-newline` CLI flags, shared by the `cb`, `cb0`, and `logger` subcommands — force a trailing newline / force none on the printed output; when neither is given, auto-detects from whether stdin already ends with a newline (trims if so, appends if not); on `logger`, only the final stdin line's newline is affected, internal record breaks are always kept
-- `tests/cli/` — first dedicated test coverage for the CLI subcommands, covering the shared `-n`/`--newline`/`-N`/`--no-newline` and `-C`/`--no-color` flags
+- `AnsiStyle.parse(raw)` — public classmethod parsing a comma-separated list of `AnsiStyle` member names (e.g. `"RED,BOLD"`) into one combined `AnsiStyle` value; raises `ValueError` on an unknown member name
+- `color` CLI subcommand (alias `c`) — CLI equivalent of `AnsiRenderer.color()`: reads a single stdin line and applies one or more space-separated `STYLE` arguments, each an `AnsiStyle` member name parsed via `AnsiStyle.parse` (e.g. `color RED BOLD`); shares only the `-n`/`-N` flags with `cb`/`cb0` — `-C`/`--no-color` is intentionally not inherited, since disabling color makes no sense for a subcommand whose purpose is applying color
+- `color-grey` CLI subcommand — shortcut equivalent to `color GREY`, sharing the same `-n`/`-N` flags and `-C` exclusion as `color`
+- `tests/cli/` — first dedicated test coverage for the CLI subcommands, covering the shared `-n`/`--newline`/`-N`/`--no-newline` and `-C`/`--no-color` flags, plus `color`'s and `color-grey`'s `STYLE` parsing and their deliberate `-C` rejection
 
 ### Changed
 
 - dev-only test dependency (`pytest`) now declared via a PEP 735 `[dependency-groups]` table in `pyproject.toml`, installed with `pip install -e . --group dev`
 - `-C, --no-color` CLI flag moved from the `logger` subcommand onto a shared parent parser, so `cb` and `cb0` now also accept it to force plain, uncolored output
-- `-w, --line-width` and `-e, --stderr` CLI flags, previously declared separately in `cb` and `cb0`, now come from one shared parent parser inherited by both subcommands
+- `-w, --line-width` CLI flag, previously declared separately in `cb` and `cb0`, now comes from one shared parent parser inherited by both subcommands
 
 ### Deprecated
 
 ### Removed
 
 - `requirements.txt` — superseded by the `dev` dependency group in `pyproject.toml`
+- `-e, --stderr` CLI flag, previously on `cb` and `cb0` — stream selection is left to ordinary shell redirection instead
 
 ### Fixed
 
