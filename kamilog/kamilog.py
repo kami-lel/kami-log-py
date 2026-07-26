@@ -1202,10 +1202,12 @@ def _logger_parser_main(args):
     set_logging_level_by_namespace(
         args, verbosity=args.verbosity, logger=logger
     )
-    lines = sys.stdin.read().splitlines()
+    raw = sys.stdin.read()
+    lines = raw.splitlines()
     last_idx = len(lines) - 1
+    suppress_final = _calc_line_end(args, raw) == ""
     for i, line in enumerate(lines):  # log each stdin Line
-        if args.no_newline and i == last_idx:  # trim only the final break
+        if suppress_final and i == last_idx:  # trim only the final break
             for handler in logger.handlers:
                 handler.terminator = ""
         logger.log(level, line)
@@ -1735,11 +1737,22 @@ def gen_comment_banner_zero(
 
 # parent parser for flags shared by every subcommand
 _common_parser = ArgumentParser(add_help=False)
-_common_parser.add_argument(
+_newline_group = _common_parser.add_mutually_exclusive_group()
+_newline_group.add_argument(
+    "-n",
+    "--newline",
+    dest="newline",
+    action="store_true",
+    default=None,
+    help="always append a trailing newline after output",
+)
+_newline_group.add_argument(
     "-N",
     "--no-newline",
-    action="store_true",
-    help="omit the trailing newline after output",
+    dest="newline",
+    action="store_false",
+    default=None,
+    help="never append a trailing newline after output",
 )
 _common_parser.add_argument(
     "-C",
@@ -1766,8 +1779,19 @@ _banner_parser.add_argument(
 )
 
 
-def _calc_line_end(args):
-    return "" if args.no_newline else "\n"
+def _calc_line_end(args, stdin_content=""):
+    """
+    decide the trailing-newline ``end`` string for output.
+
+    ``-n/--newline`` forces a Newline, ``-N/--no-newline`` forces none;
+    otherwise auto-detect from ``stdin_content``: a stdin already ending
+    in a newline gets none appended, a stdin missing one gets one appended
+    """
+    if args.newline is True:
+        return "\n"
+    if args.newline is False:
+        return ""
+    return "" if stdin_content.endswith("\n") else "\n"
 
 
 # comment banner parser  =======================================================
@@ -1780,7 +1804,8 @@ def _comment_banner_parser_main(args):
     mode = mode_map.get(args.mode, args.mode)
     file = sys.stderr if args.stderr else sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
-    content = sys.stdin.readline().rstrip("\n")  # single line from stdin
+    raw = sys.stdin.readline()  # single line from stdin
+    content = raw.rstrip("\n")
     padding = int(args.padding) if args.padding in "12345" else args.padding
     line = _gen_comment_banner_generic(
         mode,
@@ -1790,7 +1815,7 @@ def _comment_banner_parser_main(args):
         file=file,
         renderer=renderer,
     )
-    print(line, file=file, end=_calc_line_end(args))
+    print(line, file=file, end=_calc_line_end(args, raw))
 
 
 def _register_comment_banner_parser(cli_subparser):
@@ -1835,14 +1860,15 @@ _CB0_HELP = "print multi-line boxed comment banner (CB0)"
 def _comment_banner_zero_parser_main(args):
     file = sys.stderr if args.stderr else sys.stdout
     renderer = AnsiRenderer(file, is_disabled=args.no_color)
-    lines = sys.stdin.read().splitlines()  # all lines from stdin
+    raw = sys.stdin.read()  # all lines from stdin
+    lines = raw.splitlines()
     banner = gen_comment_banner_zero(
         lines,
         line_width=args.line_width,
         file=file,
         renderer=renderer,
     )
-    print(banner, file=file, end=_calc_line_end(args))
+    print(banner, file=file, end=_calc_line_end(args, raw))
 
 
 def _register_comment_banner_zero_parser(cli_subparser):

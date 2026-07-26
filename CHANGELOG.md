@@ -29,7 +29,7 @@ bug using different logger to print & diff only can produce confusing result
 
 - optional `LOGGER_NAME` positional argument on the CLI `logger` subcommand — passed to `getLogger()`, letting stdin be logged under a named logger instead of only the root logger
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
-- `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present and falls back to passing stdin through unchanged (`cat`) otherwise, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`
+- `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`. Without the binary, it falls back to format-aware stdin handling: `cb`/`cb0` prefix the captured stdin with `# `, `logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or `logger` with no tag) passes stdin through unchanged (`cat`)
 - `-N, --no-newline` CLI flag, shared by the `cb`, `cb0`, and `logger` subcommands — trims the trailing newline from the printed output; on `logger`, only the final stdin line's newline is suppressed, internal record breaks are kept
 - `tests/cli/` — first dedicated test coverage for the CLI subcommands, covering the shared `-N`/`--no-newline` and `-C`/`--no-color` flags
 
@@ -48,6 +48,7 @@ bug using different logger to print & diff only can produce confusing result
 ### Fixed
 
 - CLI `logger` subcommand no longer accepts `notset` as a `LEVEL` choice — `Logger.isEnabledFor(NOTSET)` is always `False`, so logging a record at that level silently produced no output regardless of verbosity
+- `scripts/kamilog_shim.sh` binary lookup no longer aborts a caller script running under `set -e` when `kamilog` is not on `PATH` — `type -P` failing is now caught with `|| true` before the assignment
 
 ### Security
 
