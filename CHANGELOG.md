@@ -1,7 +1,7 @@
 
 
 <!--
-Bug printf "hi\n" | kamilog cg
+BUG printf "hi\n" | kamilog cg
 todo cli color-triage-tag
 todo smart time print
 todo cli logger: implement relative time
