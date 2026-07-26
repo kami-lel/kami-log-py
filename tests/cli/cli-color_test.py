@@ -3,7 +3,8 @@ cli-color_test.py
 
 tests for the `color` CLI subcommand (alias `c`) in `kamilog.py`: `STYLE`
 parsing via `_parse_ansi_style`, and its interaction with the shared
-`-n`/`-N`/`-C` flags from `_common_parser`
+`-n`/`-N` flags from `_common_parser`; `color` does not inherit `-C`, since
+disabling color makes no sense for a subcommand whose purpose is color
 """
 
 import io
@@ -57,18 +58,18 @@ class TestStyleArgumentParses:
         assert args.style == AnsiStyle.RED
 
 
-class TestNoColorDisablesAnsiOutput:
+class TestColorHasNoDisableFlag:
     def test_default_colors_a_tty_stream(_):
         out = _run(["color", "RED"], "hi\n", stream=_FakeTtyStream())
         assert "\033[" in out
 
-    def test_no_color_strips_ansi_from_tty_stream(_):
-        out = _run(["color", "RED", "-C"], "hi\n", stream=_FakeTtyStream())
-        assert "\033[" not in out
-
     def test_non_tty_stream_prints_plain_text(_):
         out = _run(["color", "RED"], "hi\n")
         assert out == "hi"
+
+    def test_no_color_flag_is_rejected(_):
+        with pytest.raises(SystemExit):
+            _cli_parser.parse_args(["color", "RED", "-C"])
 
 
 class TestColorNewline:

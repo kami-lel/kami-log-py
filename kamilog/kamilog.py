@@ -1223,7 +1223,7 @@ def _register_logger_parser(cli_subparser):
     """
     logger_parser = cli_subparser.add_parser(
         "logger",
-        parents=[_common_parser],
+        parents=[_no_color_parser],
         help=_LOGGER_HELP,
         description=_LOGGER_DESCRIPTION,
         formatter_class=RawDescriptionHelpFormatter,
@@ -1739,7 +1739,6 @@ def gen_comment_banner_zero(
 
 # shared parsers  ==============================================================
 
-# parent parser for flags shared by every subcommand
 _common_parser = ArgumentParser(add_help=False)
 _newline_group = _common_parser.add_mutually_exclusive_group()
 _newline_group.add_argument(
@@ -1758,15 +1757,15 @@ _newline_group.add_argument(
     default=None,
     help="never append a trailing newline after output",
 )
-_common_parser.add_argument(
+_no_color_parser = ArgumentParser(add_help=False, parents=[_common_parser])
+_no_color_parser.add_argument(
     "-C",
     "--no-color",
     action="store_true",
     help="disable ANSI color output",
 )
 
-# parent parser for the line-width flag shared by the banner subcommands
-_line_width_parser = ArgumentParser(add_help=False)
+_line_width_parser = ArgumentParser(add_help=False, parents=[_no_color_parser])
 _line_width_parser.add_argument(
     "-w",
     "--line-width",
@@ -1822,7 +1821,7 @@ def _register_comment_banner_parser(cli_subparser):
     """
     comment_banner_parser = cli_subparser.add_parser(
         "comment_banner",
-        parents=[_common_parser, _line_width_parser],
+        parents=[_line_width_parser],
         help=_COMMENT_BANNER_HELP,
         description=(
             _COMMENT_BANNER_HELP
@@ -1875,7 +1874,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
     """
     comment_banner_zero_parser = cli_subparser.add_parser(
         "comment_banner_zero",
-        parents=[_common_parser, _line_width_parser],
+        parents=[_line_width_parser],
         help=_CB0_HELP,
         description=(
             _CB0_HELP
@@ -1897,7 +1896,6 @@ def _register_comment_banner_zero_parser(cli_subparser):
 _COLOR_HELP = "print stdin content with ANSI style applied"
 
 # FIXME include all possible values of styles
-# BUG remove -C
 
 
 def _parse_ansi_style(raw):
@@ -1919,7 +1917,7 @@ def _parse_ansi_style(raw):
 
 def _color_parser_main(args):
     file = sys.stdout
-    renderer = AnsiRenderer(file, is_disabled=args.no_color)
+    renderer = AnsiRenderer(file)
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
     colored = renderer.color(content, args.style)
