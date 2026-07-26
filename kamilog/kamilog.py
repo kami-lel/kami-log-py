@@ -1186,8 +1186,8 @@ verbosity threshold decides which records actually print
 
 
 example:
-  echo 'disk full' | python kamilog.py logger error
-  echo 'disk full' | python kamilog.py logger error my_module"""
+  echo 'disk full' | kamilog logger error
+  echo 'disk full' | kamilog logger error my_module"""
 
 # level Name to numeric level, keyed lowercase
 _LOGGER_LEVEL_MAP = {
@@ -1853,7 +1853,7 @@ def _register_comment_banner_parser(cli_subparser):
             _COMMENT_BANNER_HELP
             + "\n\ncontent is read from stdin, as a single line\n\n"
             "example:\n"
-            "  echo 'hello world' | python kamilog.py cb c '=' -w 20"
+            "  echo 'hello world' | kamilog cb c '=' -w 20"
         ),
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["cb"],
@@ -1906,7 +1906,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
             _CB0_HELP
             + "\n\nlines are read from stdin, one banner line per stdin line"
             "\n\nexample:\n"
-            "  printf 'line 1\\nline 2\\n' | python kamilog.py cb0 -w 20"
+            "  printf 'line 1\\nline 2\\n' | kamilog cb0 -w 20"
         ),
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["cb0"],
@@ -1936,7 +1936,7 @@ BLACK GREY WHITE BRIGHT_WHITE
 BG_RED BG_BRIGHT_RED BG_BLACK (16 background colors)
 
 example:
-  echo 'hello world' | python kamilog.py color RED BOLD"""
+  echo 'hello world' | kamilog color RED BOLD"""
 
 
 def _parse_ansi_style(raw):
@@ -2005,7 +2005,7 @@ equivalent to `color GREY`
 content is read from stdin, as a single line
 
 example:
-  echo 'hello world' | python kamilog.py color-grey"""
+  echo 'hello world' | kamilog color-grey"""
 
 
 def _color_grey_parser_main(args):

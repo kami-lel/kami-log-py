@@ -244,9 +244,7 @@ The function returns the formatted banner as a single `str` with embedded newlin
 
 ### Command-Line Interface
 
-The module provides a CLI entry point via direct script execution (`python kamilog/kamilog.py`) with an argparse-based subcommand structure. The `comment_banner` subcommand (alias: `cb`) wraps the comment-banner functions with string-based mode selection.
-
-Note: `python -m kamilog` does not work — the package has no `kamilog/__main__.py`. Use direct script execution (`python kamilog/kamilog.py`) instead.
+The module provides a CLI entry point, installed as the `kamilog` console script (see `[project.scripts]` in `pyproject.toml`), with an argparse-based subcommand structure. The `comment_banner` subcommand (alias: `cb`) wraps the comment-banner functions with string-based mode selection.
 
 Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdin rather than passed as a positional argument, so each subcommand's remaining positionals are formatting-only (mode, padding, width).
 
@@ -273,7 +271,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Option: `-e, --stderr` (output to stderr) — via `_banner_parser`
 - Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
 - Option: `-C, --no-color` (force plain output) — via `_common_parser`
-- Example: `echo 'hello world' | python kamilog/kamilog.py cb c '=' -w 20`
+- Example: `echo 'hello world' | kamilog cb c '=' -w 20`
 
 **Comment Banner Zero subcommand (`comment_banner_zero` / `cb0`)**:
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`
@@ -281,7 +279,7 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Option: `-e, --stderr` (output to stderr) — via `_banner_parser`
 - Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
 - Option: `-C, --no-color` (force plain output) — via `_common_parser`
-- Example: `printf 'Title\nSubtitle\n' | python kamilog/kamilog.py cb0 -w 40`
+- Example: `printf 'Title\nSubtitle\n' | kamilog cb0 -w 40`
 
 **Logger subcommand (`logger` / `l`)**:
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`; each is emitted as one log record
@@ -293,8 +291,8 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 - Option: `-C, --no-color` — force plain output; forwarded to `getLogger(disable_color=True)`, via `_common_parser`
 - Option: `-D, --no-diff-only` — skip diff-only compression; forwarded to `getLogger(disable_diff_only_compression=True)`
 - Option: verbosity flags via `add_verbose_arguments` — `-v`/`-q` (step) plus `-V`/`-Q`/`--max-verbose`/`--max-quiet` (extremity)
-- Example: `echo 'disk full' | python kamilog/kamilog.py logger error`
-- Example with a named logger: `echo 'disk full' | python kamilog/kamilog.py logger error my_module`
+- Example: `echo 'disk full' | kamilog logger error`
+- Example with a named logger: `echo 'disk full' | kamilog logger error my_module`
 
 ## Public API Surface
 
