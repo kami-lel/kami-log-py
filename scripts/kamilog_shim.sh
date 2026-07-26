@@ -1,11 +1,7 @@
-
-# Todo link to the github project
-# Fixme use hupy 2.1 for multiple vg
-
-
 ################################################################################
 # kamilog_shim
 # lets scripts call `kamilog` safely even when it is not installed
+# shipped with kamilog v2.8.1-alpha, q.v. https://github.com/kami-lel/kamilog
 ################################################################################
 _KAMILOG_BIN="$(type -P kamilog 2>/dev/null || true)"
 
