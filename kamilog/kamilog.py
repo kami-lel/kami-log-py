@@ -1896,6 +1896,9 @@ def _register_comment_banner_zero_parser(cli_subparser):
 
 _COLOR_HELP = "print stdin content with ANSI style applied"
 
+# FIXME include all possible values of styles
+# BUG remove -C
+
 
 def _parse_ansi_style(raw):
     """
