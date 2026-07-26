@@ -8,7 +8,11 @@ Q.v. https://github.com/kami-lel/kamilog for Project Main Page
 Q.v. https://github.com/kami-lel/kamilog/tree/main/docs for Documentation
 """
 
-from argparse import ArgumentParser, RawDescriptionHelpFormatter
+from argparse import (
+    ArgumentParser,
+    ArgumentTypeError,
+    RawDescriptionHelpFormatter,
+)
 import logging
 import os
 import sys
@@ -1895,6 +1899,68 @@ def _register_comment_banner_zero_parser(cli_subparser):
     )
 
 
+# color parser  ================================================================
+
+_COLOR_HELP = "print stdin content with ANSI style applied"
+
+
+def _parse_ansi_style(raw):
+    """
+    parse a comma-separated list of ``AnsiStyle`` member names into a
+    single combined ``AnsiStyle`` value
+    """
+    style = AnsiStyle(0)
+    for name in raw.split(","):
+        name = name.strip().upper()
+        try:
+            style |= AnsiStyle[name]
+        except KeyError:
+            raise ArgumentTypeError(
+                "unknown AnsiStyle member {!r}".format(name)
+            )
+    return style
+
+
+def _color_parser_main(args):
+    file = sys.stderr if args.stderr else sys.stdout
+    renderer = AnsiRenderer(file, is_disabled=args.no_color)
+    raw = sys.stdin.readline()  # single line from stdin
+    content = raw.rstrip("\n")
+    colored = renderer.color(content, args.style)
+    print(colored, file=file, end=_calc_line_end(args, raw))
+
+
+def _register_color_parser(cli_subparser):
+    """
+    register the ``color`` subcommand on ``cli_subparser``
+    """
+    color_parser = cli_subparser.add_parser(
+        "color",
+        parents=[_common_parser, _stderr_parser],
+        help=_COLOR_HELP,
+        description=(
+            _COLOR_HELP
+            + "\n\ncontent is read from stdin, as a single line\n\n"
+            "example:\n"
+            "  echo 'hello world' | python kamilog.py color RED,BOLD"
+        ),
+        formatter_class=RawDescriptionHelpFormatter,
+        aliases=["c"],
+    )
+
+    color_parser.add_argument(
+        "style",
+        metavar="STYLE",
+        type=_parse_ansi_style,
+        help=(
+            "comma-separated AnsiStyle member name(s) to combine, "
+            "eg 'RED,BOLD' or 'BG_YELLOW,UNDERLINE'"
+        ),
+    )
+
+    color_parser.set_defaults(func=_color_parser_main)
+
+
 # CLI main parser  #############################################################
 
 _cli_parser = ArgumentParser(
@@ -1907,6 +1973,7 @@ _cli_subparser = _cli_parser.add_subparsers(title="subcommands")
 
 # register subcommands
 
+_register_color_parser(_cli_subparser)
 _register_comment_banner_parser(_cli_subparser)
 _register_comment_banner_zero_parser(_cli_subparser)
 _register_logger_parser(_cli_subparser)
