@@ -1895,6 +1895,13 @@ def _register_comment_banner_zero_parser(cli_subparser):
 
 _COLOR_HELP = "print stdin content with ANSI style applied"
 
+_COLOR_DESCRIPTION = _COLOR_HELP + """
+
+content is read from stdin, as a single line
+
+example:
+  echo 'hello world' | python kamilog.py color RED,BOLD"""
+
 # FIXME include all possible values of styles
 
 
@@ -1932,12 +1939,7 @@ def _register_color_parser(cli_subparser):
         "color",
         parents=[_common_parser],
         help=_COLOR_HELP,
-        description=(
-            _COLOR_HELP
-            + "\n\ncontent is read from stdin, as a single line\n\n"
-            "example:\n"
-            "  echo 'hello world' | python kamilog.py color RED,BOLD"
-        ),
+        description=_COLOR_DESCRIPTION,
         formatter_class=RawDescriptionHelpFormatter,
         aliases=["c"],
     )
