@@ -1,8 +1,9 @@
 """
 cli-common-flags_test.py
 
-tests for the shared `-N/--no-newline` and `-C/--no-color` flags inherited
-by the `cb`, `cb0`, and `logger` CLI subcommands via `_common_parser`, and
+tests for the shared `-n/--newline`/`-N/--no-newline` and `-C/--no-color`
+flags inherited by the `cb`, `cb0`, and `logger` CLI subcommands via
+`_common_parser`, and
 for the `-w/--line-width`/`-e/--stderr` pair still inherited by `cb`/`cb0`
 via `_banner_parser`, in `kamilog.py`
 """
@@ -25,21 +26,36 @@ class _FakeTtyStream(io.StringIO):
         return True
 
 
-class TestNoNewlineFlagIsRecognized:
+class TestNewlineFlagIsRecognized:
     @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
-    def test_default_no_newline_is_false(_, argv):
+    def test_default_newline_is_none(_, argv):
         args = _cli_parser.parse_args(argv)
-        assert args.no_newline is False
+        assert args.newline is None
 
     @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
-    def test_short_flag_sets_no_newline(_, argv):
+    def test_short_flag_sets_newline_true(_, argv):
+        args = _cli_parser.parse_args(argv + ["-n"])
+        assert args.newline is True
+
+    @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
+    def test_long_flag_sets_newline_true(_, argv):
+        args = _cli_parser.parse_args(argv + ["--newline"])
+        assert args.newline is True
+
+    @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
+    def test_short_flag_sets_newline_false(_, argv):
         args = _cli_parser.parse_args(argv + ["-N"])
-        assert args.no_newline is True
+        assert args.newline is False
 
     @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
-    def test_long_flag_sets_no_newline(_, argv):
+    def test_long_flag_sets_newline_false(_, argv):
         args = _cli_parser.parse_args(argv + ["--no-newline"])
-        assert args.no_newline is True
+        assert args.newline is False
+
+    @pytest.mark.parametrize("argv", _SUBCOMMAND_ARGS)
+    def test_newline_flags_are_mutually_exclusive(_, argv):
+        with pytest.raises(SystemExit):
+            _cli_parser.parse_args(argv + ["-n", "-N"])
 
 
 class TestNoColorFlagIsRecognized:
