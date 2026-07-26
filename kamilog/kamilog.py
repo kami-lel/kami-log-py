@@ -160,6 +160,32 @@ class AnsiStyle(Flag):  # =====================================================
     BOLD = auto()
     UNDERLINE = auto()
 
+    # Public API  **************************************************************
+
+    @classmethod
+    def parse(cls, raw):
+        """
+        parse a comma-separated list of ``AnsiStyle`` member names into a
+        single combined ``AnsiStyle`` value.
+
+
+        :param raw: comma-separated member names, eg ``"RED,BOLD"``
+        :type raw: str
+        :return: combined style
+        :rtype: AnsiStyle
+        :raises ValueError: if ``raw`` contains an unknown member name
+        """
+        style = cls(0)
+        for name in raw.split(","):
+            name = name.strip().upper()
+            try:
+                style |= cls[name]
+            except KeyError:
+                raise ValueError(
+                    "unknown AnsiStyle member {!r}".format(name)
+                )
+        return style
+
 
 class AnsiRenderer:  # =========================================================
     """
@@ -1907,19 +1933,13 @@ example:
 
 def _parse_ansi_style(raw):
     """
-    parse a comma-separated list of ``AnsiStyle`` member names into a
-    single combined ``AnsiStyle`` value
+    argparse ``type`` adapter for ``AnsiStyle.parse``, mapping an unknown
+    member name to ``ArgumentTypeError`` instead of ``ValueError``
     """
-    style = AnsiStyle(0)
-    for name in raw.split(","):
-        name = name.strip().upper()
-        try:
-            style |= AnsiStyle[name]
-        except KeyError:
-            raise ArgumentTypeError(
-                "unknown AnsiStyle member {!r}".format(name)
-            )
-    return style
+    try:
+        return AnsiStyle.parse(raw)
+    except ValueError as e:
+        raise ArgumentTypeError(str(e))
 
 
 def _color_parser_main(args):
