@@ -10,7 +10,7 @@ disabling color makes no sense for a subcommand whose purpose is color
 import io
 
 import pytest
-from kamilog.kamilog import AnsiStyle, _cli_parser
+from kamilog.kamilog import AnsiRenderer, AnsiStyle, _cli_parser
 
 
 class _FakeTtyStream(io.StringIO):

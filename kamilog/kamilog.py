@@ -1972,10 +1972,7 @@ def _register_color_parser(cli_subparser):
         metavar="STYLE",
         nargs="+",
         type=_parse_ansi_style,
-        help=(
-            "one or more AnsiStyle member names to combine, "
-            "eg 'RED BOLD' or 'BG_YELLOW UNDERLINE'"
-        ),
+        help= "1+ ANSI styles, v.s.",
     )
 
     color_parser.set_defaults(func=_color_parser_main)
