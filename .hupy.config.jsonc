@@ -24,6 +24,11 @@
       {
         "file": "kamilog/kamilog.py",
         "glob": "__version__\\s*=\\s*\"(.+)\""
+      },
+      {
+        "remark": "kamilog_shim version",
+        "file": "scripts/kamilog_shim.sh",
+        "glob": "# shipped with kamilog v(\\S+), q\\.v\\. https://github\\.com/kami-lel/kamilog"
       }
     ]
   },
