@@ -1925,10 +1925,19 @@ _COLOR_DESCRIPTION = _COLOR_HELP + """
 
 content is read from stdin, as a single line
 
+ANSI STYLE:
+
+BOLD UNDERLINE
+
+RED YELLOW GREEN CYAN BLUE MAGENTA
+BRIGHT_RED BRIGHT_YELLOW ~~ (8 bright colors)
+BLACK GREY WHITE BRIGHT_WHITE
+
+BG_RED BG_BRIGHT_RED BG_BLACK (16 background colors)
+
 example:
   echo 'hello world' | python kamilog.py color RED BOLD"""
 
-# FIXME include all possible values of styles
 
 
 def _parse_ansi_style(raw):
