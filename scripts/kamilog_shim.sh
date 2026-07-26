@@ -1,3 +1,7 @@
+
+# Todo link to the github project
+
+
 ################################################################################
 # kamilog_shim
 # lets scripts call `kamilog` safely even when it is not installed
