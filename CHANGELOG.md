@@ -1,7 +1,6 @@
 
 
 <!--
-TODO cli color
 TODO cli color-triage-tag
 TODO cli color-grey
 todo smart time print

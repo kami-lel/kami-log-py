@@ -1761,9 +1761,8 @@ _common_parser.add_argument(
     help="disable ANSI color output",
 )
 
-# parent parser for flags shared by the banner subcommands
-_banner_parser = ArgumentParser(add_help=False)
-_banner_parser.add_argument(
+_line_width_parser = ArgumentParser(add_help=False)
+_line_width_parser.add_argument(
     "-w",
     "--line-width",
     type=int,
@@ -1771,7 +1770,9 @@ _banner_parser.add_argument(
     metavar="LINE_WIDTH",
     help="total character width of output line; default 80",
 )
-_banner_parser.add_argument(
+
+_stderr_parser = ArgumentParser(add_help=False)
+_stderr_parser.add_argument(
     "-e",
     "--stderr",
     action="store_true",
@@ -1824,7 +1825,7 @@ def _register_comment_banner_parser(cli_subparser):
     """
     comment_banner_parser = cli_subparser.add_parser(
         "comment_banner",
-        parents=[_common_parser, _banner_parser],
+        parents=[_common_parser, _line_width_parser, _stderr_parser],
         help=_COMMENT_BANNER_HELP,
         description=(
             _COMMENT_BANNER_HELP
@@ -1877,7 +1878,7 @@ def _register_comment_banner_zero_parser(cli_subparser):
     """
     comment_banner_zero_parser = cli_subparser.add_parser(
         "comment_banner_zero",
-        parents=[_common_parser, _banner_parser],
+        parents=[_common_parser, _line_width_parser, _stderr_parser],
         help=_CB0_HELP,
         description=(
             _CB0_HELP

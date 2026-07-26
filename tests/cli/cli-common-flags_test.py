@@ -4,8 +4,8 @@ cli-common-flags_test.py
 tests for the shared `-n/--newline`/`-N/--no-newline` and `-C/--no-color`
 flags inherited by the `cb`, `cb0`, and `logger` CLI subcommands via
 `_common_parser`, and
-for the `-w/--line-width`/`-e/--stderr` pair still inherited by `cb`/`cb0`
-via `_banner_parser`, in `kamilog.py`
+for the `-w/--line-width` and `-e/--stderr` flags still inherited by
+`cb`/`cb0` via `_line_width_parser` and `_stderr_parser`, in `kamilog.py`
 """
 
 import io
