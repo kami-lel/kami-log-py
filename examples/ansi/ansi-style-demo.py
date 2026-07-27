@@ -4,6 +4,8 @@ ansi-style-demo.py
 demonstrate `AnsiStyle` flags and `AnsiRenderer.color` combinations
 """
 
+# todo no golden-output test exists for this demo under tests/*/demo/
+
 import sys
 
 import kamilog
