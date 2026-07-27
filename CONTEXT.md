@@ -1,6 +1,6 @@
 # kamilog CONTEXT
 
-*Last updated: 2026-07-17 - v2.8.0*
+*Last updated: 2026-07-27 - v2.9.0*
 
 ## Project Overview
 
@@ -14,7 +14,7 @@ Repository: <https://github.com/kami-lel/kamilog>
 kamilog/
 ├── kamilog/
 │   ├── __init__.py          # re-exports all public symbols from kamilog.py
-│   └── kamilog.py           # entire implementation (~1580 lines)
+│   └── kamilog.py           # entire implementation (~2060 lines)
 ├── tests/
 │   ├── cb/                          # comment-banner test suite
 │   │   ├── cb-centered_test.py
@@ -55,8 +55,11 @@ kamilog/
 ├── docs/
 │   ├── usage_doc.md         # public API reference with examples
 │   └── install_guide.md     # installation methods
-├── pyproject.toml           # PEP 518 build config; package metadata with dynamic version/author
-├── requirements.txt         # pytest (test-only)
+├── scripts/
+│   └── kamilog_shim.sh       # bash `kamilog()` fallback wrapper, meant to be copy-pasted
+│                             # or sourced into a caller's own script
+├── pyproject.toml           # PEP 518 build config; package metadata with dynamic version/author;
+│                             # dev dependency group (`pip install -e . --group dev`) adds pytest
 ├── CHANGELOG.md
 └── README.md
 ```
@@ -95,6 +98,8 @@ Public combinable `Flag` enum of ANSI style bits — foreground, background, and
 | foreground neutrals | `BLACK`, `GREY`, `WHITE`, `BRIGHT_WHITE` |
 | background | `BG_`-prefixed counterpart of every foreground member above |
 | text attribute | `BOLD`, `UNDERLINE` |
+
+- `parse(raw)` (classmethod) — parses a comma-separated list of member names (e.g. `"RED,BOLD"`) into one combined `AnsiStyle` value; raises `ValueError` on an unknown member name
 
 ### `AnsiRenderer`
 
@@ -181,7 +186,6 @@ inline.
   block is shortened by `start_offset` so later blocks land on `TAB_SIZE`
   boundaries, the last block holds the remainder and may be shorter than
   `TAB_SIZE`.
-- `block_starts()` — returns the message-index each block begins at.
 - `render(*, insert_prefix=False, prefix_symbol=" ")` — joins the blocks
   back into a single string; `insert_prefix=True` prepends `start_offset`
   copies of `prefix_symbol`. `__str__` delegates to `render()` with defaults.
@@ -241,47 +245,74 @@ The function returns the formatted banner as a single `str` with embedded newlin
 
 ### Command-Line Interface
 
-The module provides a CLI entry point via direct script execution (`python kamilog/kamilog.py`) with an argparse-based subcommand structure. The `comment_banner` subcommand (alias: `cb`) wraps the comment-banner functions with string-based mode selection.
-
-Note: `python -m kamilog` does not work — the package has no `kamilog/__main__.py`. Use direct script execution (`python kamilog/kamilog.py`) instead.
+The module provides a CLI entry point, installed as the `kamilog` console script (see `[project.scripts]` in `pyproject.toml`), with an argparse-based subcommand structure. The `comment_banner` subcommand (alias: `cb`) wraps the comment-banner functions with string-based mode selection.
 
 Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdin rather than passed as a positional argument, so each subcommand's remaining positionals are formatting-only (mode, padding, width).
 
 **CLI module organization**:
 - `_cli_parser` — root ArgumentParser; only it and `_cli_subparser` are module-level CLI objects, both private under the `_cli_` prefix so they stay off the public surface
 - every subcommand is attached by a `_register_*_parser(cli_subparser)` function called on `_cli_subparser` at the bottom of the module; each builds its parser as a local, so no parser object leaks to module scope
-- `_comment_banner_parser_main(args)` — handler that reads `content` from stdin (single line), maps CLI modes to `_gen_comment_banner_generic`, then prints the returned line to stdout or stderr
-- `_register_comment_banner_parser(cli_subparser)` — builds and attaches the `comment_banner` / `cb` subcommand
+- `_common_parser` — `add_help=False` parent `ArgumentParser` holding only a mutually exclusive `-n`/`--newline` and `-N`/`--no-newline` pair (both `dest="newline"`, default `None`); passed via `parents=` to `color` and `color-grey`, and inherited by every other layer below
+- `_no_color_parser` — `add_help=False` parent `ArgumentParser`, `parents=[_common_parser]`, adding `-C`/`--no-color`; passed via `parents=` to `logger`, and inherited by `_line_width_parser`
+- `_line_width_parser` — `add_help=False` parent `ArgumentParser`, `parents=[_no_color_parser]`, adding `-w`/`--line-width` (default 80); passed via `parents=` to `cb` and `cb0`
+- `_calc_line_end(args, stdin_content="")` — resolves `args.newline` and `stdin_content` to the `end` string. Every caller strips stdin's own trailing newline off the content before printing, so `end` is the only place it can survive: it is the *kept* newline (`"\n"` when `stdin_content` ends in one, else `""`) plus the *appended* one. `True` (`-n`) appends one unconditionally, so a stdin ending in a newline yields `"\n\n"`; `False` (`-N`) appends none, yielding just the kept newline; `None` (the default) returns a flat `"\n"`, so auto output always ends in exactly one newline. Used both as the banner/color handlers' `print()` `end` and as the logger's final-record terminator
+- `_comment_banner_parser_main(args)` — handler that reads the raw stdin line, derives `content` via `.rstrip("\n")`, maps CLI modes to `_gen_comment_banner_generic`, builds an `AnsiRenderer` honoring `-C`, then prints the returned line to stdout with the newline `_calc_line_end(args, raw)` decides
+- `_register_comment_banner_parser(cli_subparser)` — builds and attaches the `comment_banner` / `cb` subcommand, inheriting `_line_width_parser`
 - `_COMMENT_BANNER_HELP` — shared help/description string for the subcommand
-- `_comment_banner_zero_parser_main(args)` — handler that reads `lines` from stdin (one banner line per stdin line), calls `gen_comment_banner_zero`, then prints the returned banner
-- `_register_comment_banner_zero_parser(cli_subparser)` — builds and attaches the `comment_banner_zero` / `cb0` subcommand
+- `_comment_banner_zero_parser_main(args)` — handler that reads raw stdin, splits it into `lines` (one banner line per stdin line), builds an `AnsiRenderer` honoring `-C`, calls `gen_comment_banner_zero`, then prints the returned banner with the newline `_calc_line_end(args, raw)` decides
+- `_register_comment_banner_zero_parser(cli_subparser)` — builds and attaches the `comment_banner_zero` / `cb0` subcommand, inheriting `_line_width_parser`
 - `_CB0_HELP` — shared help/description string for the CB0 subcommand
-- `_register_logger_parser(cli_subparser)` — builds and attaches the `logger` / `l` subcommand
-- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level
+- `_parse_ansi_style(raw)` — argparse `type` adapter wrapping `AnsiStyle.parse`, mapping its `ValueError` to `ArgumentTypeError` so an unknown `STYLE` token reports as a normal argparse usage error
+- `_print_colored_stdin_line(args, style)` — shared handler body for `color` and `color-grey`: reads a single stdin line, applies `style` via a plain (non-`-C`-aware) `AnsiRenderer`, and prints with the newline `_calc_line_end(args, raw)` decides
+- `_register_color_parser(cli_subparser)` — builds and attaches the `color` / `c` subcommand, inheriting `_common_parser`; `STYLE` is a `nargs="+"` positional of `_parse_ansi_style`-typed tokens, OR-combined into one `AnsiStyle` before rendering
+- `_COLOR_HELP` / `_COLOR_DESCRIPTION` — shared help and description strings for the subcommand
+- `_register_color_grey_parser(cli_subparser)` — builds and attaches the `color-grey` subcommand, inheriting `_common_parser`; fixed to `AnsiStyle.GREY`, equivalent to `color GREY`
+- `_COLOR_GREY_HELP` / `_COLOR_GREY_DESCRIPTION` — shared help and description strings for the subcommand
+- `_register_logger_parser(cli_subparser)` — builds and attaches the `logger` / `l` subcommand, inheriting `_no_color_parser`
+- `_logger_parser_main(args)` — handler that resolves `LEVEL` and `--time-format` through `_LOGGER_LEVEL_MAP` / `_LOGGER_TIME_FORMAT_MAP`, calls `getLogger(args.name, datefmt=…)`, applies the verbosity threshold, then logs each stdin line at the resolved level. Each record is emitted with the handler's `"\n"` terminator, so the final record's terminator *is* the output's trailing newline: `_calc_line_end(args, raw)` is assigned to every handler's `terminator` immediately before the last line is logged, making `-n` end the output in `"\n\n"`, `-N` keep or omit the break as raw stdin did, and auto end in exactly one. Earlier records are never touched, so internal breaks always survive
 - `_LOGGER_HELP` / `_LOGGER_DESCRIPTION` — shared help and description strings for the subcommand
 
 **Comment Banner subcommand (`comment_banner` / `cb`)**:
 - Stdin: `CONTENT` — single line of text, read via `sys.stdin.readline()`
 - Positional: `MODE` (c/center, l/left, r/right), `PADDING` (char or int 1-5)
-- Option: `-w, --line-width LINE_WIDTH` (default 80)
-- Option: `-e, --stderr` (output to stderr)
-- Example: `echo 'hello world' | python kamilog/kamilog.py cb c '=' -w 20`
+- Option: `-w, --line-width LINE_WIDTH` (default 80) — via `_line_width_parser`
+- Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
+- Option: `-C, --no-color` (force plain output) — via `_no_color_parser`
+- Example: `echo 'hello world' | kamilog cb c '=' -w 20`
 
 **Comment Banner Zero subcommand (`comment_banner_zero` / `cb0`)**:
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`
-- Option: `-w, --line-width LINE_WIDTH` (default 80)
-- Option: `-e, --stderr` (output to stderr)
-- Example: `printf 'Title\nSubtitle\n' | python kamilog/kamilog.py cb0 -w 40`
+- Option: `-w, --line-width LINE_WIDTH` (default 80) — via `_line_width_parser`
+- Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
+- Option: `-C, --no-color` (force plain output) — via `_no_color_parser`
+- Example: `printf 'Title\nSubtitle\n' | kamilog cb0 -w 40`
+
+**Color subcommand (`color` / `c`)**:
+- Stdin: `CONTENT` — single line of text, read via `sys.stdin.readline()`
+- Positional: `STYLE` — one or more space-separated `AnsiStyle` member names (`nargs="+"`, each parsed via `_parse_ansi_style`/`AnsiStyle.parse`), OR-combined before rendering
+- Option: `-n, --newline` / `-N, --no-newline` (force a trailing newline / force none; default auto-detects from whether stdin already ends with a newline) — via `_common_parser`
+- No `-C`/`--no-color` — deliberately not inherited, since disabling color makes no sense for a subcommand whose purpose is applying color
+- Example: `echo 'hello world' | kamilog color RED BOLD`
+
+**Color-grey subcommand (`color-grey`)**:
+- Stdin: `CONTENT` — single line of text, read via `sys.stdin.readline()`
+- No positional — fixed to `AnsiStyle.GREY`, equivalent to `color GREY`
+- Option: `-n, --newline` / `-N, --no-newline` — same as `color`, via `_common_parser`
+- No `-C`/`--no-color` — same exclusion as `color`
+- Example: `echo 'hello world' | kamilog color-grey`
 
 **Logger subcommand (`logger` / `l`)**:
 - Stdin: `LINES` — one or more lines, read via `sys.stdin.read().splitlines()`; each is emitted as one log record
-- Positional: `LEVEL` — a level name from `_LOGGER_LEVEL_MAP` (`notset`, `debug`, `enter`, `skip`, `succ`, `info`, `pass`, `note`, `tip`, `done`, `hint`, `important`, `warning`, `caution`, `error`, `fail`, `critical`)
+- Positional: `LEVEL` — a level name from `_LOGGER_LEVEL_MAP` (`debug`, `enter`, `skip`, `succ`, `info`, `pass`, `note`, `tip`, `done`, `hint`, `important`, `warning`, `caution`, `error`, `fail`, `critical`); `notset` is excluded — `Logger.isEnabledFor(NOTSET)` is always `False`, so a record logged at that level can never actually emit
+- Positional: `LOGGER_NAME` — optional, forwarded to `getLogger()` as the `name` argument; defaults to the root logger when omitted
 - Option: `--verbosity VERBOSITY` — base verbosity offset the `-v`/`-q` counts adjust from (default 3); the resolved level acts as the print threshold, so records below it are dropped
 - Option: `-t, --time-format` — one of `time`, `time-ms`, `datetime`, `datetime-ms`, `no-time` (default `time`), mapped through `_LOGGER_TIME_FORMAT_MAP` to a `datefmt` passed into `getLogger()`; `no-time` maps to `None`
-- Option: `-C, --no-color` — force plain output; forwarded to `getLogger(disable_color=True)`
+- Option: `-n, --newline` / `-N, --no-newline` — forces / forces off the final stdin line's trailing newline; default auto-detects from whether raw stdin already ends with a newline, via `_common_parser`; earlier records always keep their line breaks
+- Option: `-C, --no-color` — force plain output; forwarded to `getLogger(disable_color=True)`, via `_no_color_parser`
 - Option: `-D, --no-diff-only` — skip diff-only compression; forwarded to `getLogger(disable_diff_only_compression=True)`
 - Option: verbosity flags via `add_verbose_arguments` — `-v`/`-q` (step) plus `-V`/`-Q`/`--max-verbose`/`--max-quiet` (extremity)
-- Example: `echo 'disk full' | python kamilog/kamilog.py logger error`
+- Example: `echo 'disk full' | kamilog logger error`
+- Example with a named logger: `echo 'disk full' | kamilog logger error my_module`
 
 ## Public API Surface
 
@@ -294,6 +325,7 @@ kamilog.KamiLogger                              # logger class (subclass of logg
 
 # ANSI color
 kamilog.AnsiStyle                               # combinable Flag enum of style bits
+kamilog.AnsiStyle.parse(raw) -> AnsiStyle       # parse comma-separated member names, eg "RED,BOLD"
 kamilog.AnsiRenderer(stream=None, *, is_disabled=False)  # TTY-detecting color applier
 
 # comment banner
@@ -354,4 +386,4 @@ Verbosity mapping (default level is `DONE` = 25):
 
 ## Known Limitations and Future Work
 
-- Test coverage now spans verbosity helpers, comment-banner functions, `AnsiRenderer`/TTY detection (`tests/ansi/`), `_LogFormatter`/`_LogFormatEngine` (`tests/lf/`), `KamiLogger` (`tests/logger/`), `_DiffOnlyEngine`/`_DiffOnlyMsgFilter` (`tests/dof/`), and `_TabAlignedLine` (`tests/tal/`), plus golden-output tests for every `examples/` demo script; the CLI subcommands (`cb`, `cb0`, `logger`) still have no dedicated tests.
+- Test coverage now spans verbosity helpers, comment-banner functions, `AnsiRenderer`/TTY detection (`tests/ansi/`), `_LogFormatter`/`_LogFormatEngine` (`tests/lf/`), `KamiLogger` (`tests/logger/`), `_DiffOnlyEngine`/`_DiffOnlyMsgFilter` (`tests/dof/`), `_TabAlignedLine` (`tests/tal/`), and the shared `-n`/`-N`/`-C` CLI flags (`tests/cli/`), plus golden-output tests for every `examples/` demo script; the CLI subcommands' pre-existing arguments (mode, padding, width, stderr routing, level resolution, verbosity) still have no dedicated tests.

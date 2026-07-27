@@ -78,26 +78,26 @@ WARN. myapp: Warning message
 
 ### Custom Log Levels
 
-`KamiLogger` extends the standard library logger with ten custom levels for test and hook workflows. Full level reference:
+`KamiLogger` extends the standard library logger with eleven custom levels for test and hook workflows. Full level reference:
 
-| Level | Num | Function | Color | Remark |
-|---|---|---|---|---|
-| DEBUG | 10 | `.debug()` | `CYAN` | internal state and control flow, kept to Debug output and never shown to users |
-| ENTER | 15 | `.enter()` | `BRIGHT_CYAN` | enters a subroutine or test section, a Developer trace of flow |
-| SKIP  | 16 | `.skip()` | `BLUE` | a logic branch or test case was Expectedly skipped |
-| SUCC. | 17 | `.succ()` | `GREEN` | a subroutine completed successfully, Pairs with ENTER |
-| INFO  | 20 | `.info()` | `BRIGHT_BLUE` | a general event or state Change during normal execution |
-| PASS  | 21 | `.pass_()` | `BRIGHT_GREEN` | a test assertion or case Passed |
-| NOTE  | 23 | `.note()` | `BLUE` | an aside worth Recording for the production user |
-| TIP   | 24 | `.tip()` | `BRIGHT_CYAN` | an actionable Suggestion for the production user |
-| DONE  | 25 | `.done()` | `BRIGHT_YELLOW` | an entire program or major Phase finished successfully |
-| HINT  | 26 | `.hint()` | `CYAN` | a subtle actionable cue Printed to the terminal |
-| IMPT. | 27 | `.important()` | `BRIGHT_BLUE` | emphasized terminal information that should Stand Out |
-| WARN. | 30 | `.warning()` | `YELLOW` | an unexpected but Recoverable condition |
-| CAUT. | 31 | `.caution()` | `MAGENTA` | needs even more Immediate attention than IMPT |
-| ERROR | 40 | `.error()` | `RED` | an operation Failed |
-| FAIL  | 45 | `.fail()` | `BRIGHT_RED` | a test assertion or case Failed |
-| CRIT. | 50 | `.critical()` | `BRIGHT_MAGENTA` | program failure or immediate Crash |
+| Emoji | Level | Num | Function | Color | Remark |
+|---|---|---|---|---|---|
+| 🐞 | DEBUG | 10 | `.debug()` | `CYAN` | indicates state and control flow, for debug output and never shown to users |
+| ▶️ | ENTER | 15 | `.enter()` | `BRIGHT_CYAN` | enters a subroutine or test section, a developer's trace of flow |
+| ⏭️ | SKIP  | 16 | `.skip()` | `BLUE` | a logic branch or test case was expectedly skipped |
+| ✅ | SUCC. | 17 | `.succ()` | `GREEN` | a subroutine completed successfully |
+| 💡 | INFO  | 20 | `.info()` | `BRIGHT_BLUE` | a general event or state change during normal execution |
+| ✔️ | PASS  | 21 | `.pass_()` | `BRIGHT_GREEN` | a test assertion or case passed |
+| 📝 | NOTE  | 23 | `.note()` | `BLUE` | an aside worth recording for the production user |
+| 🍀 | TIP   | 24 | `.tip()` | `BRIGHT_CYAN` | an actionable suggestion for the production user |
+| 🏁 | DONE  | 25 | `.done()` | `BRIGHT_YELLOW` | an entire program or major phase finished successfully |
+| 📌 | HINT  | 26 | `.hint()` | `CYAN` | a subtle actionable cue |
+| 🚨 | IMPT. | 27 | `.important()` | `BRIGHT_BLUE` | emphasized information that should stand out |
+| ⚠️ | WARN. | 30 | `.warning()` | `YELLOW` | indicate an unexpected but recoverable condition |
+| 🚧 | CAUT. | 31 | `.caution()` | `MAGENTA` | needs even more immediate attention |
+| 🛑 | ERROR | 40 | `.error()` | `RED` | an operation failed |
+| ❌ | FAIL  | 45 | `.fail()` | `BRIGHT_RED` | a test assertion or case failed |
+| ⛔ | CRIT. | 50 | `.critical()` | `BRIGHT_MAGENTA` | program failure or immediate crash |
 
 > [!IMPORTANT]
 > `.pass_()` uses a trailing underscore because `pass` is a Python keyword.
@@ -599,3 +599,34 @@ level = kamilog.calc_logging_level(-2, namespace=args)
 
 `set_logging_level_by_namespace(args, verbosity=v)` is equivalent to
 `logger.setLevel(kamilog.calc_logging_level(v, namespace=args))`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+## `kamilog_shim`
+
+`scripts/kamilog_shim.sh` lets a plain shell script call `kamilog` safely,
+even on a machine where `kamilog` is not installed. It defines a `kamilog()`
+function that forwards to the real binary when found on `PATH`. When it is
+not found, it falls back to format-aware stdin handling instead of running
+the real subcommand: `cb`/`cb0` prefix the captured stdin with `# `,
+`logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or
+`logger` with no tag) passes stdin through unchanged (`cat`).
+
+Either **copy-paste** the full contents of `scripts/kamilog_shim.sh` directly
+into your script, or `source` it instead:
+
+```bash
+source /path/to/kamilog_shim.sh
+
+echo "hello" | kamilog
+```

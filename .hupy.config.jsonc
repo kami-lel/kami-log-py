@@ -7,18 +7,30 @@
 // #############################################################################
 {
   // HUPy version, do not edit
-  "hupy_version": "1.0.0",
+  "hupy_version": "2.1.0",
   "vg": { // VerGrep  ##########################################################
     // grep repo's version string
     //
     // disable VerGrep
     "is_disabled": false,
-    // file path which version string can be found,
-    // relative to repo root
-    "version_file": "kamilog/kamilog.py",
-    // regex pattern to match line containing version string;
-    // first capture group `( )` is version
-    "version_line_pattern": "__version__\\s*=\\s*\"(.+)\""
+    // Version Uniformity: assert the version also appears correctly
+    // in every configured occurrence below
+    //
+    // disable Version Uniformity (VerGrep itself stays enabled)
+    "disable_version_uniformity": false,
+    // let a drifted occurrence warn instead of blocking the commit
+    "allow_version_uniformity_failure": false,
+    "version_occurrences": [
+      {
+        "file": "kamilog/kamilog.py",
+        "glob": "__version__\\s*=\\s*\"(.+)\""
+      },
+      {
+        "remark": "kamilog_shim version",
+        "file": "scripts/kamilog_shim.sh",
+        "glob": "# shipped with kamilog v(\\S+), q\\.v\\. https://github\\.com/kami-lel/kamilog"
+      }
+    ]
   },
   "cbm": { // ##################################################################
     // exact name of main branch
@@ -54,6 +66,19 @@
     // glob patterns excluded from TT scanning
     "ignored_path_globs": []
   },
+  "pt": { // Paper Trail #######################################################
+    // disable PT
+    "is_disabled": false,
+    "trails": [
+      {
+        "remark": "Changelog Entry Required on Feature Landing",
+        "glob": "CHANGELOG.md",
+        "allow_commit_types": [
+          "FEATURE_LANDING"
+        ]
+      }
+    ]
+  },
   "pch": { // Prepend Commit Header ############################################
     // adds a short header line to the top of the commit message
     //
@@ -75,65 +100,19 @@
     "release_candidate_tag": "-rc"
   },
   "hb": { // Hook Bracket ######################################################
-    // run extra commands around HUPy's own hook logic
-    //
-    // a single HB command entry include fields:
-    //
-    // - "cmd": shell command to be ran (at repository root)
-    // - "allow_commit_types" (optional, list of string): v.i.
-    // - "allow_failure" (optional, boolean):
-    //   allowing failed command proceeded with committing
-    // - "remark" (optional, string): description/name of entry,
-    //   strictly used in logger
-    //
-    // "allow_commit_types" include all commit types which
-    // this command should be ran, possible values:
-    //
-    // - non-merge commits
-    //   - "REGULAR_COMMIT",
-    //   - "OTHER_COMMIT",
-    // - merge commits:
-    //   - "FEATURE_LANDING"
-    //   - "VERSION_RELEASE"
-    //   - "SYNC_BACKPORT"
-    //   - "CATCH_UP"
-    //   - "HOTFIX_RELEASE"
-    //   - "HOTFIX_BACKPORT"
-    //   - "RELEASE_CUT"
-    //   - "RELEASE_BACKPORT"
-    //   - "OTHER_MERGE"
-    // - merge categories (union of merge subtypes above):
-    //   - "MERGE" (all merge commits)
-    //   - "RELEASE": VERSION_RELEASE | HOTFIX_RELEASE | RELEASE_CUT
-    //   - "BACKPORT": SYNC_BACKPORT | HOTFIX_BACKPORT | RELEASE_BACKPORT
-    //   - "INTEGRATION": RELEASE | FEATURE_LANDING
-    //
     // disable HB
     "is_disabled": false,
     "pre_commit": {
-      // run before pre-commit's core logic
-      "lead": [
+      "trail": [
         {
           "cmd": "pytest tests/",
-          "allow_commit_types": ["INTEGRATION"],
+          "allow_commit_types": [
+            "INTEGRATION"
+          ],
           "allow_failure": false,
           "remark": "Integration UTs"
         }
-      ],
-      // run after pre-commit's core logic
-      "trail": []
-    },
-    "prepare_commit_msg": {
-      // run before prepare-commit-msg's core logic
-      "lead": [],
-      // run after prepare-commit-msg's core logic
-      "trail": []
-    },
-    "post_commit": {
-      // run before post-commit's core logic
-      "lead": [],
-      // run after post-commit's core logic
-      "trail": []
+      ]
     }
   }
 }

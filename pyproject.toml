@@ -18,6 +18,12 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/kami-lel/kamilog"
 
+[project.scripts]
+kamilog = "kamilog.kamilog:kamilog_cli_main"
+
+[dependency-groups]
+dev = ["pytest"]
+
 [tool.setuptools.dynamic]
 version = {attr = "kamilog.kamilog.__version__"}
 

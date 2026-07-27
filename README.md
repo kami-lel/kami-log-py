@@ -2,53 +2,82 @@
 
 A lightweight Python logging wrapper with structured output, custom log levels, combinable ANSI color styling, and flexible timestamp options.
 
-<!--
-todo smart time print
-todo cli logger: implement relative time
-todo cli logger: allow to use already set up logger
-bug using different logger to print & diff only can produce confusing result
--->
+
+
+
+
+
+
+
+
+
+
+
 
 ## Features
 
-#### 🎯 Custom Logging Experience
+#### 🎯 A Logger That Actually Tells a Story
 
-- Eleven custom log levels (`ENTER`, `SKIP`, `SUCC`, `PASS`, `NOTE`, `TIP`, `DONE`, `HINT`, `IMPORTANT`, `CAUTION`, `FAIL`) for test, hook, and general-purpose workflows
-- Structured output with padded level names
-- Automatic stdout/stderr split by severity
-- Diff-only compression for repeated log lines
-- Optional log-file output via `getLogger(filename=...)`, with a file-only mode
-- Drop-in replacement for `logging.getLogger()`
+Standard `logging` flattens everything into `DEBUG`/`INFO`/`WARNING`/`ERROR`.
+kamilog adds eleven more levels — `ENTER`, `SKIP`, `SUCC`, `PASS`, `NOTE`,
+`TIP`, `DONE`, `HINT`, `IMPORTANT`, `CAUTION`, `FAIL` — so a log reads like
+the narrative of a run, not just a severity dump. It's a drop-in swap for
+`logging.getLogger()`, so nothing else in your codebase has to change.
 
-#### 🎨 ANSI Colored Output
+#### 🎨 Color That Earns Its Keep
 
-- Per-level ANSI formatting with bold
-- Combinable `AnsiStyle` flags — foreground, background, bold, and underline, mixed freely with `|`
-- Triage-tag coloring via `color_triage_tag`
-- TTY-aware (auto-disabled when piped)
-- Public color API for custom colored output
+Every level gets its own bold ANSI color out of the box, and colors
+combine freely for anything custom. It's TTY-aware, so piping output to a
+file or another process never leaves you with escape-code garbage.
 
-#### ⚡ Verbosity Control
+#### ⚡ Verbosity Without the Boilerplate
 
-- `-v`/`-q` CLI argument helpers
-- Seven verbosity steps from `CRITICAL` to `DEBUG`
+`-v`/`-q` flags and seven verbosity steps come for free — no more hand-
+rolling the same `argparse` glue in every project.
 
-#### 📐 Comment Banner Utilities
+#### 📐 Terminal Banners, Done Right
 
-- Centered, left-justified, and right-justified alignment modes
-- Fixed-width terminal banners with custom fill characters
-- Horizontal offset for centered banners, keeping titles aligned behind a prefix
+Clean, fixed-width section banners with centered, left-, or right-justified
+titles — the kind of visual structure that makes long CLI output and log
+files scannable instead of a wall of text.
 
-#### 💻 Command-Line Interface
+#### 💻 A CLI, Not Just a Library
 
-- Subcommands for comment banners (`cb`, `cb0`) and logging (`logger`)
-- Each subcommand carries comprehensive `-h`/`--help` text — the de facto CLI reference
-- Run `python kamilog/kamilog.py -h` to list subcommands, then `python kamilog/kamilog.py <subcommand> -h` for its full options
+`kamilog` installs as its own shell command, ready to use without writing
+a line of Python.
 
----
+
+
+
+
+
+
+
+
+
+
+
+
+## Install
 
 Q.v. [docs/install_guide.md](docs/install_guide.md) for installation instructions.
 
+
+
+
+
+
+
+
+
+
+
+
+
+## Usage
+
 Q.v. [docs/usage_doc.md](docs/usage_doc.md) for full usage documentation.
+
+Run `kamilog -h` for the full CLI reference — each subcommand's `-h`/`--help` text is the de facto documentation.
 
 Q.v. [examples/](examples/) for runnable scripts demonstrating each feature.

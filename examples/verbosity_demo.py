@@ -14,6 +14,8 @@ usage:
     python verbosity_demo.py -qqq     # CRITICAL and above
 """
 
+# todo no golden-output test exists for this demo under tests/*/demo/
+
 from argparse import ArgumentParser
 import kamilog
 

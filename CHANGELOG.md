@@ -1,5 +1,13 @@
 # kamilog CHANGELOG
 
+<!--
+todo cli color-triage-tag
+todo smart time print
+todo cli logger: implement relative time
+todo cli logger: allow to use already set up logger
+bug using different logger to print & diff only can produce confusing result
+-->
+
 [^format]
 
 
@@ -30,7 +38,45 @@
 
 ### Security
 
-[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.8.0...dev
+[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.0...dev
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [2.9.0] - 2026-07-27
+
+### Added
+
+- `kamilog` shell command — installed automatically by `pip`, so the CLI runs as `kamilog` right after install, no script path needed
+- `color` and `color-grey` CLI subcommands — apply ANSI styles to piped text straight from the shell (e.g. `echo hi | kamilog color RED BOLD`)
+- `-n`/`-N` flags on `cb`, `cb0`, and `logger` — force a trailing newline on or off; left alone, output ends in exactly one newline
+- `logger` subcommand now accepts an optional logger name, so stdin can be logged under a named logger instead of only the root logger
+- `scripts/kamilog_shim.sh` — drop-in shell fallback that lets scripts call `kamilog` safely even where it isn't installed
+
+### Changed
+
+- `-C`/`--no-color` and `-w`/`--line-width` now work consistently across `cb` and `cb0`
+
+### Removed
+
+- `-e`/`--stderr` flag on `cb`/`cb0` — redirect output with ordinary shell syntax instead
+
+### Fixed
+
+- trailing-newline handling across `cb`, `cb0`, `color`, `color-grey`, and `logger` — output now matches what stdin actually had, instead of dropping or duplicating a line break
+- `logger` no longer accepts `notset` as a level, since it could never produce output
+- `kamilog_shim.sh` no longer aborts a calling script (under `set -e`) when `kamilog` isn't installed
+
+[2.9.0]: https://github.com/kami-lel/kamilog/compare/v2.8.0...v2.9.0
 
 
 

@@ -4,6 +4,8 @@ ansi-tt-demo.py
 demonstrate `AnsiRenderer.color_triage_tag` across all 12 triage tags
 """
 
+# todo no golden-output test exists for this demo under tests/*/demo/
+
 import sys
 
 import kamilog
@@ -35,7 +37,9 @@ print(
 )
 
 # mock comments  ###################################################
-print(kamilog.gen_comment_banner_centered("mock comments", 1, renderer=renderer))
+print(
+    kamilog.gen_comment_banner_centered("mock comments", 1, renderer=renderer)
+)
 print("# " + renderer.color_triage_tag("TODO") + " implement data fetching")
 print("// " + renderer.color_triage_tag("Fixme") + " re-check array bounds")
 print(
