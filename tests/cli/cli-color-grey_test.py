@@ -60,18 +60,26 @@ class TestColorGreyHasNoDisableFlag:
 
 
 class TestColorGreyNewline:
-    def test_auto_trims_when_stdin_ends_with_newline(_):
+    def test_auto_ends_in_one_newline_when_stdin_has_one(_):
         out = _run(["color-grey"], "hi\n")
-        assert not out.endswith("\n")
+        assert out.endswith("\n") and not out.endswith("\n\n")
 
-    def test_auto_appends_when_stdin_has_no_newline(_):
+    def test_auto_ends_in_one_newline_when_stdin_has_none(_):
         out = _run(["color-grey"], "hi")
-        assert out.endswith("\n")
+        assert out.endswith("\n") and not out.endswith("\n\n")
 
-    def test_newline_forces_trailing_newline(_):
+    def test_newline_flag_appends_onto_stdin_newline(_):
         out = _run(["color-grey", "-n"], "hi\n")
-        assert out.endswith("\n")
+        assert out.endswith("\n\n")  # own break kept, one appended
 
-    def test_no_newline_forces_no_trailing_newline(_):
+    def test_newline_flag_appends_when_stdin_has_none(_):
+        out = _run(["color-grey", "-n"], "hi")
+        assert out.endswith("\n") and not out.endswith("\n\n")
+
+    def test_no_newline_flag_keeps_stdin_newline(_):
+        out = _run(["color-grey", "-N"], "hi\n")
+        assert out.endswith("\n") and not out.endswith("\n\n")
+
+    def test_no_newline_flag_appends_none_when_stdin_has_none(_):
         out = _run(["color-grey", "-N"], "hi")
         assert not out.endswith("\n")
