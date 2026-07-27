@@ -1,7 +1,9 @@
 ################################################################################
 # kamilog_shim
+# shipped with kamilog v2.9.1
+#
 # lets scripts call `kamilog` safely even when it is not installed
-# shipped with kamilog v2.9.0, q.v. https://github.com/kami-lel/kamilog
+# Q.v. https://github.com/kami-lel/kamilog
 ################################################################################
 _KAMILOG_BIN="$(type -P kamilog 2>/dev/null || true)"
 
@@ -10,15 +12,17 @@ kamilog() {
         "$_KAMILOG_BIN" "$@"
         return
     fi
+    input="$(cat; printf x)";
+    input="${input%x}"   # keep trailing \n from being stripped
     case "$1" in
         cb|cb0)
-            printf '# %s\n' "$(cat)"
+            printf '# %s' "$input"
             ;;
         logger)
-            printf '%s:\t%s\n' "$2" "$(cat)"
+            printf '%s:\t%s' "$2" "$input"
             ;;
         *)
-            cat  # no bin found, pass stdin through as-is
+            printf '%s' "$input"  # no bin found, pass stdin through as-is
             ;;
     esac
 }

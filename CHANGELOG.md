@@ -38,7 +38,27 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Security
 
-[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.0...dev
+[2.9.1]: https://github.com/kami-lel/kamilog/compare/v2.9.0...v2.9.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [2.9.1] - 2026-07-28
+
+### Fixed
+
+- `kamilog_shim.sh` no longer appends a trailing newline to `cb`/`cb0` and `logger` output
+
+[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.1...dev
 
 
 
