@@ -1235,11 +1235,11 @@ def _logger_parser_main(args):
     raw = sys.stdin.read()
     lines = raw.splitlines()
     last_idx = len(lines) - 1
-    suppress_final = _calc_line_end(args) == ""
+    final_end = _calc_line_end(args, raw)  # final record's own break
     for i, line in enumerate(lines):  # log each stdin Line
-        if suppress_final and i == last_idx:  # trim only the final break
+        if i == last_idx:  # only the final break is adjustable
             for handler in logger.handlers:
-                handler.terminator = ""
+                handler.terminator = final_end
         logger.log(level, line)
 
 
