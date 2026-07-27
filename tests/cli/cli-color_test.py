@@ -65,7 +65,7 @@ class TestColorHasNoDisableFlag:
 
     def test_non_tty_stream_prints_plain_text(_):
         out = _run(["color", "RED"], "hi\n")
-        assert out == "hi"
+        assert out == "hi\n"
 
     def test_no_color_flag_is_rejected(_):
         with pytest.raises(SystemExit):
@@ -81,9 +81,9 @@ class TestMultipleStyleArgsCombineOnRender:
 
 
 class TestColorNewline:
-    def test_auto_trims_when_stdin_ends_with_newline(_):
+    def test_auto_keeps_single_trailing_newline_when_stdin_has_one(_):
         out = _run(["color", "RED"], "hi\n")
-        assert not out.endswith("\n")
+        assert out.endswith("\n") and not out.endswith("\n\n")
 
     def test_auto_appends_when_stdin_has_no_newline(_):
         out = _run(["color", "RED"], "hi")
