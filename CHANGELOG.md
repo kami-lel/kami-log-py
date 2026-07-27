@@ -1,7 +1,6 @@
 
 
 <!--
-BUG printf "hi\n" | kamilog cg
 todo cli color-triage-tag
 todo smart time print
 todo cli logger: implement relative time
@@ -32,7 +31,7 @@ bug using different logger to print & diff only can produce confusing result
 - optional `LOGGER_NAME` positional argument on the CLI `logger` subcommand — passed to `getLogger()`, letting stdin be logged under a named logger instead of only the root logger
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
 - `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`. Without the binary, it falls back to format-aware stdin handling: `cb`/`cb0` prefix the captured stdin with `# `, `logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or `logger` with no tag) passes stdin through unchanged (`cat`)
-- `-n, --newline` / `-N, --no-newline` CLI flags, shared by the `cb`, `cb0`, and `logger` subcommands — force a trailing newline / force none on the printed output; when neither is given, auto-detects from whether stdin already ends with a newline (trims if so, appends if not); on `logger`, only the final stdin line's newline is affected, internal record breaks are always kept
+- `-n, --newline` / `-N, --no-newline` CLI flags, shared by the `cb`, `cb0`, and `logger` subcommands — force a trailing newline / force none on the printed output; when neither is given, auto mode always restores exactly one trailing newline, matching `-n`; on `logger`, only the final stdin line's newline is affected, internal record breaks are always kept
 - `AnsiStyle.parse(raw)` — public classmethod parsing a comma-separated list of `AnsiStyle` member names (e.g. `"RED,BOLD"`) into one combined `AnsiStyle` value; raises `ValueError` on an unknown member name
 - `color` CLI subcommand (alias `c`) — CLI equivalent of `AnsiRenderer.color()`: reads a single stdin line and applies one or more space-separated `STYLE` arguments, each an `AnsiStyle` member name parsed via `AnsiStyle.parse` (e.g. `color RED BOLD`); shares only the `-n`/`-N` flags with `cb`/`cb0` — `-C`/`--no-color` is intentionally not inherited, since disabling color makes no sense for a subcommand whose purpose is applying color
 - `color-grey` CLI subcommand — shortcut equivalent to `color GREY`, sharing the same `-n`/`-N` flags and `-C` exclusion as `color`
@@ -53,6 +52,7 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Fixed
 
+- `_calc_line_end()` auto mode (no `-n`/`-N` given) on the `cb`, `cb0`, `color`, `color-grey`, and `logger` subcommands no longer drops the trailing newline entirely when stdin already ended in one — every caller strips stdin's own trailing newline from the content before printing, so auto mode now always restores exactly one, instead of returning none
 - CLI `logger` subcommand no longer accepts `notset` as a `LEVEL` choice — `Logger.isEnabledFor(NOTSET)` is always `False`, so logging a record at that level silently produced no output regardless of verbosity
 - `scripts/kamilog_shim.sh` binary lookup no longer aborts a caller script running under `set -e` when `kamilog` is not on `PATH` — `type -P` failing is now caught with `|| true` before the assignment
 
