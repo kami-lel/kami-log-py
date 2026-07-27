@@ -830,7 +830,7 @@ class _DiffOnlyEngine:  # ******************************************************
         self._history = deque(maxlen=threshold)
         # _common[i] = shared char at position i across all history,
         # or None where messages diverge or lengths differ
-        self._common: list = []
+        self._common = []
 
     def _update_common(self):
         """

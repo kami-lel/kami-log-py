@@ -1,6 +1,6 @@
 # kamilog CONTEXT
 
-*Last updated: 2026-07-26 - v2.8.1-alpha*
+*Last updated: 2026-07-27 - v2.9.0*
 
 ## Project Overview
 
@@ -14,7 +14,7 @@ Repository: <https://github.com/kami-lel/kamilog>
 kamilog/
 ├── kamilog/
 │   ├── __init__.py          # re-exports all public symbols from kamilog.py
-│   └── kamilog.py           # entire implementation (~1580 lines)
+│   └── kamilog.py           # entire implementation (~2060 lines)
 ├── tests/
 │   ├── cb/                          # comment-banner test suite
 │   │   ├── cb-centered_test.py
@@ -186,7 +186,6 @@ inline.
   block is shortened by `start_offset` so later blocks land on `TAB_SIZE`
   boundaries, the last block holds the remainder and may be shorter than
   `TAB_SIZE`.
-- `block_starts()` — returns the message-index each block begins at.
 - `render(*, insert_prefix=False, prefix_symbol=" ")` — joins the blocks
   back into a single string; `insert_prefix=True` prepends `start_offset`
   copies of `prefix_symbol`. `__str__` delegates to `render()` with defaults.

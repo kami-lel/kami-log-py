@@ -28,6 +28,34 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.0...dev
+
+
+
+
+
+
+
+
+
+
+
+
+
+## [2.9.0] - 2026-07-27
+
+### Added
+
 - optional `LOGGER_NAME` positional argument on the CLI `logger` subcommand — passed to `getLogger()`, letting stdin be logged under a named logger instead of only the root logger
 - `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
 - `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`. Without the binary, it falls back to format-aware stdin handling: `cb`/`cb0` prefix the captured stdin with `# `, `logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or `logger` with no tag) passes stdin through unchanged (`cat`)
@@ -58,7 +86,7 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Security
 
-[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.8.0...dev
+[2.9.0]: https://github.com/kami-lel/kamilog/compare/v2.8.0...v2.9.0
 
 
 

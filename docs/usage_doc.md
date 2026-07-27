@@ -78,7 +78,7 @@ WARN. myapp: Warning message
 
 ### Custom Log Levels
 
-`KamiLogger` extends the standard library logger with ten custom levels for test and hook workflows. Full level reference:
+`KamiLogger` extends the standard library logger with eleven custom levels for test and hook workflows. Full level reference:
 
 | Emoji | Level | Num | Function | Color | Remark |
 |---|---|---|---|---|---|
@@ -616,8 +616,11 @@ level = kamilog.calc_logging_level(-2, namespace=args)
 
 `scripts/kamilog_shim.sh` lets a plain shell script call `kamilog` safely,
 even on a machine where `kamilog` is not installed. It defines a `kamilog()`
-function that forwards to the real binary when found on `PATH`, and falls
-back to passing stdin through unchanged (`cat`) when it is not.
+function that forwards to the real binary when found on `PATH`. When it is
+not found, it falls back to format-aware stdin handling instead of running
+the real subcommand: `cb`/`cb0` prefix the captured stdin with `# `,
+`logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or
+`logger` with no tag) passes stdin through unchanged (`cat`).
 
 Either **copy-paste** the full contents of `scripts/kamilog_shim.sh` directly
 into your script, or `source` it instead:
