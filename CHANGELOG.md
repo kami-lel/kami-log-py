@@ -1,4 +1,4 @@
-
+# kamilog CHANGELOG
 
 <!--
 todo cli color-triage-tag
@@ -56,35 +56,25 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Added
 
-- optional `LOGGER_NAME` positional argument on the CLI `logger` subcommand — passed to `getLogger()`, letting stdin be logged under a named logger instead of only the root logger
-- `kamilog` shell command — installed via a `console_scripts` entry point (`kamilog.kamilog:kamilog_cli_main`), so `pip install` alone makes the CLI runnable as `kamilog` without invoking the script file directly
-- `scripts/kamilog_shim.sh` — bash `kamilog()` function that forwards to the installed binary when present, letting shell scripts call `kamilog` safely on a machine where it is not installed; documented in `docs/usage_doc.md`. Without the binary, it falls back to format-aware stdin handling: `cb`/`cb0` prefix the captured stdin with `# `, `logger <tag>` prefixes it with `tag:\t`, and any other subcommand (or `logger` with no tag) passes stdin through unchanged (`cat`)
-- `-n, --newline` / `-N, --no-newline` CLI flags, shared by the `cb`, `cb0`, and `logger` subcommands — append a trailing newline after the content / append none; with neither, smartly decides so the output ends in exactly one
-- `AnsiStyle.parse(raw)` — public classmethod parsing a comma-separated list of `AnsiStyle` member names (e.g. `"RED,BOLD"`) into one combined `AnsiStyle` value; raises `ValueError` on an unknown member name
-- `color` CLI subcommand (alias `c`) — CLI equivalent of `AnsiRenderer.color()`: reads a single stdin line and applies one or more space-separated `STYLE` arguments, each an `AnsiStyle` member name parsed via `AnsiStyle.parse` (e.g. `color RED BOLD`); shares only the `-n`/`-N` flags with `cb`/`cb0` — `-C`/`--no-color` is intentionally not inherited, since disabling color makes no sense for a subcommand whose purpose is applying color
-- `color-grey` CLI subcommand — shortcut equivalent to `color GREY`, sharing the same `-n`/`-N` flags and `-C` exclusion as `color`
-- `tests/cli/` — first dedicated test coverage for the CLI subcommands, covering the shared `-n`/`--newline`/`-N`/`--no-newline` and `-C`/`--no-color` flags, plus `color`'s and `color-grey`'s `STYLE` parsing and their deliberate `-C` rejection
+- `kamilog` shell command — installed automatically by `pip`, so the CLI runs as `kamilog` right after install, no script path needed
+- `color` and `color-grey` CLI subcommands — apply ANSI styles to piped text straight from the shell (e.g. `echo hi | kamilog color RED BOLD`)
+- `-n`/`-N` flags on `cb`, `cb0`, and `logger` — force a trailing newline on or off; left alone, output ends in exactly one newline
+- `logger` subcommand now accepts an optional logger name, so stdin can be logged under a named logger instead of only the root logger
+- `scripts/kamilog_shim.sh` — drop-in shell fallback that lets scripts call `kamilog` safely even where it isn't installed
 
 ### Changed
 
-- dev-only test dependency (`pytest`) now declared via a PEP 735 `[dependency-groups]` table in `pyproject.toml`, installed with `pip install -e . --group dev`
-- `-C, --no-color` CLI flag moved from the `logger` subcommand onto a shared parent parser, so `cb` and `cb0` now also accept it to force plain, uncolored output
-- `-w, --line-width` CLI flag, previously declared separately in `cb` and `cb0`, now comes from one shared parent parser inherited by both subcommands
-
-### Deprecated
+- `-C`/`--no-color` and `-w`/`--line-width` now work consistently across `cb` and `cb0`
 
 ### Removed
 
-- `requirements.txt` — superseded by the `dev` dependency group in `pyproject.toml`
-- `-e, --stderr` CLI flag, previously on `cb` and `cb0` — stream selection is left to ordinary shell redirection instead
+- `-e`/`--stderr` flag on `cb`/`cb0` — redirect output with ordinary shell syntax instead
 
 ### Fixed
 
-- trailing-newline handling on the `cb`, `cb0`, `color`, `color-grey`, and `logger` subcommands — when stdin ended in a newline, the auto mode emitted none, `-N` removed stdin's own instead of just appending none, and `-n` appended nothing extra
-- CLI `logger` subcommand no longer accepts `notset` as a `LEVEL` choice — `Logger.isEnabledFor(NOTSET)` is always `False`, so logging a record at that level silently produced no output regardless of verbosity
-- `scripts/kamilog_shim.sh` binary lookup no longer aborts a caller script running under `set -e` when `kamilog` is not on `PATH` — `type -P` failing is now caught with `|| true` before the assignment
-
-### Security
+- trailing-newline handling across `cb`, `cb0`, `color`, `color-grey`, and `logger` — output now matches what stdin actually had, instead of dropping or duplicating a line break
+- `logger` no longer accepts `notset` as a level, since it could never produce output
+- `kamilog_shim.sh` no longer aborts a calling script (under `set -e`) when `kamilog` isn't installed
 
 [2.9.0]: https://github.com/kami-lel/kamilog/compare/v2.8.0...v2.9.0
 
