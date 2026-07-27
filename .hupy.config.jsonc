@@ -101,6 +101,18 @@
   },
   "hb": { // Hook Bracket ######################################################
     // disable HB
-    "is_disabled": false
+    "is_disabled": false,
+    "pre_commit": {
+      "trail": [
+        {
+          "cmd": "pytest tests/",
+          "allow_commit_types": [
+            "INTEGRATION"
+          ],
+          "allow_failure": false,
+          "remark": "Integration UTs"
+        }
+      ]
+    }
   }
 }
