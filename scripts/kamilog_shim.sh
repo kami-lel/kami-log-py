@@ -12,15 +12,17 @@ kamilog() {
         "$_KAMILOG_BIN" "$@"
         return
     fi
+    input="$(cat; printf x)";
+    input="${input%x}"   # keep trailing \n from being stripped
     case "$1" in
         cb|cb0)
-            printf '# %s' "$(cat)"
+            printf '# %s' "$input"
             ;;
         logger)
-            printf '%s:\t%s' "$2" "$(cat)"
+            printf '%s:\t%s' "$2" "$input"
             ;;
         *)
-            cat  # no bin found, pass stdin through as-is
+            printf '%s' "$input"  # no bin found, pass stdin through as-is
             ;;
     esac
 }
