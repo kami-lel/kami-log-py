@@ -1235,7 +1235,7 @@ def _logger_parser_main(args):
     raw = sys.stdin.read()
     lines = raw.splitlines()
     last_idx = len(lines) - 1
-    suppress_final = _calc_line_end(args, raw) == ""
+    suppress_final = _calc_line_end(args) == ""
     for i, line in enumerate(lines):  # log each stdin Line
         if suppress_final and i == last_idx:  # trim only the final break
             for handler in logger.handlers:
@@ -1802,19 +1802,16 @@ _line_width_parser.add_argument(
 )
 
 
-def _calc_line_end(args, stdin_content=""):
+def _calc_line_end(args):
     """
     decide the trailing-newline ``end`` string for output.
 
     ``-n/--newline`` forces a Newline, ``-N/--no-newline`` forces none;
-    otherwise auto-detect from ``stdin_content``: a stdin already ending
-    in a newline gets none appended, a stdin missing one gets one appended
+    otherwise auto-detect: every caller has already stripped stdin's own
+    trailing newline from the content before printing, so the auto case
+    always restores exactly one, matching ``-n``
     """
-    if args.newline is True:
-        return "\n"
-    if args.newline is False:
-        return ""
-    return "" if stdin_content.endswith("\n") else "\n"
+    return "" if args.newline is False else "\n"
 
 
 # comment banner parser  =======================================================
@@ -1838,7 +1835,7 @@ def _comment_banner_parser_main(args):
         file=file,
         renderer=renderer,
     )
-    print(line, file=file, end=_calc_line_end(args, raw))
+    print(line, file=file, end=_calc_line_end(args))
 
 
 def _register_comment_banner_parser(cli_subparser):
@@ -1891,7 +1888,7 @@ def _comment_banner_zero_parser_main(args):
         file=file,
         renderer=renderer,
     )
-    print(banner, file=file, end=_calc_line_end(args, raw))
+    print(banner, file=file, end=_calc_line_end(args))
 
 
 def _register_comment_banner_zero_parser(cli_subparser):
@@ -1960,7 +1957,7 @@ def _print_colored_stdin_line(args, style):
     raw = sys.stdin.readline()  # single line from stdin
     content = raw.rstrip("\n")
     colored = renderer.color(content, style)
-    print(colored, file=file, end=_calc_line_end(args, raw))
+    print(colored, file=file, end=_calc_line_end(args))
 
 
 def _color_parser_main(args):
