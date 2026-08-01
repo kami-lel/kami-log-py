@@ -113,6 +113,16 @@
           "remark": "Integration UTs"
         }
       ]
+    },
+    "prepare_commit_msg": {
+      "lead": [
+        {
+          "remark": "Kaye Commit Sense",
+          "cmd": "./.git/hooks/kaye-commit-sense-hook.sh",
+          "allow_failure": true,
+          "timeout": 60.0
+        }
+      ]
     }
   }
 }
