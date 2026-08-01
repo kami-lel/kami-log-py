@@ -112,7 +112,7 @@ Public class that centralizes ANSI color detection and application. Instantiated
 - `color_grey(text)` — wraps `text` in grey; used for timestamps, source labels, and compression markers.
 - `color_triage_tag(triage_tag)` — colors a triage-tag string (`BUG`/`Bug`/`bug`, `FIXME`/`Fixme`/`fixme`, `TODO`/`Todo`/`todo`, `HACK`/`Hack`/`hack`) via the internal `_TRIAGE_TAG2ANSI_STYLE` map. Each tag type keeps one hue across its three loudness tiers, with contrast (background presence/brightness, bold) escalating for louder tiers. Raises `ValueError` for any other string.
 
-### `getLogger(name, *, datefmt, relative_to, disable_color, disable_diff_only_compression, filename, file_mode, disable_console)`
+### `getLogger(name, *, datefmt, relative_to, disable_color, disable_diff_only_compression, filename, file_mode, disable_console, enable_propagate)`
 
 The sole public entry point. Every call:
 
@@ -128,6 +128,7 @@ Keyword-only options propagate to those parts:
 - `filename=None` — path to a log file; when set, attaches the `FileHandler` described above with color always disabled (a file is never a TTY).
 - `file_mode="a"` — open mode forwarded to `logging.FileHandler` (`"a"` append, `"w"` truncate).
 - `disable_console=False` — when `True`, omits the stdout/stderr handlers, yielding a file-only logger.
+- `enable_propagate=False` — sets `logger.propagate`; kept off by default so records never double-print through an ancestor logger's handlers, unlike stdlib's default-`True` behavior.
 
 ### `KamiLogger`
 
@@ -320,7 +321,8 @@ Both `cb` and `cb0` follow the Unix pipe pattern: text content is read from stdi
 # logger factory
 kamilog.getLogger(name=None, *, datefmt=DATEFMT_TIME, relative_to=None,
                   disable_color=False, disable_diff_only_compression=False,
-                  filename=None, file_mode="a", disable_console=False) -> KamiLogger
+                  filename=None, file_mode="a", disable_console=False,
+                  enable_propagate=False) -> KamiLogger
 kamilog.KamiLogger                              # logger class (subclass of logging.Logger)
 
 # ANSI color

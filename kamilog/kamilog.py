@@ -65,7 +65,7 @@ __all__ = (
 
 
 # metadata  ####################################################################
-__version__ = "2.9.1"
+__version__ = "2.9.2"
 __author__ = "kamiLeL"
 
 
@@ -1068,6 +1068,7 @@ def getLogger(
     filename=None,
     file_mode="a",
     disable_console=False,
+    enable_propagate=False,
 ):
     """
     return a configured :class:`KamiLogger` for ``name``, creating it if needed.
@@ -1099,6 +1100,9 @@ def getLogger(
     :param disable_console: when ``True``, skip the stdout/stderr handlers,
             yielding a file-only logger; default=``False``
     :type disable_console: bool, optional
+    :param enable_propagate: whether records also propagate to ancestor
+            loggers' handlers; default=``False``
+    :type enable_propagate: bool, optional
     :return: a logger with the `name`, create if non-existence;
             root logger if `name` is `None`
     :rtype: KamiLogger
@@ -1107,6 +1111,8 @@ def getLogger(
 
     if not isinstance(logger, KamiLogger):
         logger.__class__ = KamiLogger
+
+    logger.propagate = enable_propagate
 
     if not any(isinstance(f, _DiffOnlyMsgFilter) for f in logger.filters):
         logger.addFilter(
