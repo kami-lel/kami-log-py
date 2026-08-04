@@ -1320,8 +1320,8 @@ _EXTREME_VERBOSITY = 1_000_000
 
 _STEP_VERBOSE_HELP = "increase verbosity by 1 per {opt}"
 _STEP_QUIET_HELP = "decrease verbosity by 1 per {opt}"
-_EXTREMITY_VERBOSE_HELP = "make maximally verbose, via {opt}"
-_EXTREMITY_QUIET_HELP = "make maximally quiet, via {opt}"
+_EXTREMITY_VERBOSE_HELP = "set maximally verbose"
+_EXTREMITY_QUIET_HELP = "set maximally quiet"
 
 
 def _flag_option_strings(short_flag, long_flag):
@@ -1439,7 +1439,7 @@ def add_verbose_arguments(
         action="store_const",
         const=_EXTREME_VERBOSITY,
         default=0,
-        help=_EXTREMITY_VERBOSE_HELP.format(opt="/".join(max_verbose_opts)),
+        help=_EXTREMITY_VERBOSE_HELP,
     )
     parser.add_argument(
         *max_quiet_opts,
@@ -1447,7 +1447,7 @@ def add_verbose_arguments(
         action="store_const",
         const=_EXTREME_VERBOSITY,
         default=0,
-        help=_EXTREMITY_QUIET_HELP.format(opt="/".join(max_quiet_opts)),
+        help=_EXTREMITY_QUIET_HELP,
     )
 
 
