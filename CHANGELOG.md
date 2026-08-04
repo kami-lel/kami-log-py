@@ -30,6 +30,8 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Changed
 
+- verbosity CLI help text — tightened phrasing on the step verbose/quiet flags, and dropped the dynamic option-name interpolation from the max verbose/max quiet flags' help strings
+
 ### Deprecated
 
 ### Removed
