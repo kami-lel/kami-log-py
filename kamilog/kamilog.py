@@ -181,9 +181,7 @@ class AnsiStyle(Flag):  # =====================================================
             try:
                 style |= cls[name]
             except KeyError:
-                raise ValueError(
-                    "unknown AnsiStyle member {!r}".format(name)
-                )
+                raise ValueError("unknown AnsiStyle member {!r}".format(name))
         return style
 
 
@@ -1320,8 +1318,8 @@ def _set_logger_level(level, *, logger=None, logger_name=None):
 _VERBOSE_FLAG_CHOICES = ("vq", "VQ", "")
 _EXTREME_VERBOSITY = 1_000_000
 
-_STEP_VERBOSE_HELP = "make verbose, each {opt} increase verbosity by 1"
-_STEP_QUIET_HELP = "make quiet, each {opt} decrease verbosity by 1"
+_STEP_VERBOSE_HELP = "increase verbosity by 1 per {opt}"
+_STEP_QUIET_HELP = "decrease verbosity by 1 per {opt}"
 _EXTREMITY_VERBOSE_HELP = "make maximally verbose, via {opt}"
 _EXTREMITY_QUIET_HELP = "make maximally quiet, via {opt}"
 
@@ -1993,7 +1991,7 @@ def _register_color_parser(cli_subparser):
         metavar="STYLE",
         nargs="+",
         type=_parse_ansi_style,
-        help= "1+ ANSI styles, v.s.",
+        help="1+ ANSI styles, v.s.",
     )
 
     color_parser.set_defaults(func=_color_parser_main)
