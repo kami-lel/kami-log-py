@@ -1,6 +1,6 @@
 ################################################################################
 # kamilog_shim
-# shipped with kamilog v2.9.2
+# shipped with kamilog v2.9.3
 #
 # lets scripts call `kamilog` safely even when it is not installed
 # Q.v. https://github.com/kami-lel/kamilog
