@@ -28,11 +28,7 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Added
 
-- golden-output tests for the three demo scripts that had lacked one — `examples/ansi/ansi-tt-demo.py`, `examples/ansi/ansi-style-demo.py`, and `examples/verbosity_demo.py` (`tests/ansi/demo/`, `tests/v/demo/`) — closing the `TODO` gaps each script carried
-
 ### Changed
-
-- verbosity CLI help text — tightened phrasing on the step verbose/quiet flags, and dropped the dynamic option-name interpolation from the max verbose/max quiet flags' help strings
 
 ### Deprecated
 
@@ -42,7 +38,22 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Security
 
-[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.2...dev
+[unreleased]: https://github.com/kami-lel/kamilog/compare/v2.9.3...dev
+[2.9.3]: https://github.com/kami-lel/kamilog/compare/v2.9.2...v2.9.3
+
+
+
+
+## [2.9.3] - 2026-08-05
+
+### Added
+
+- golden-output tests for the `ansi-style-demo.py`, `ansi-tt-demo.py`, and `verbosity_demo.py` example scripts
+
+### Changed
+
+- tightened verbosity CLI help text — clearer step flag descriptions, and dropped dynamic option-name interpolation from the max verbose/quiet flags
+
 [2.9.2]: https://github.com/kami-lel/kamilog/compare/v2.9.1...v2.9.2
 
 
