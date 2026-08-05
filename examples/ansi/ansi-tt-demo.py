@@ -4,7 +4,7 @@ ansi-tt-demo.py
 demonstrate `AnsiRenderer.color_triage_tag` across all 12 triage tags
 """
 
-# todo no golden-output test exists for this demo under tests/*/demo/
+# TODO no golden-output test exists for this demo under tests/*/demo/
 
 import sys
 
