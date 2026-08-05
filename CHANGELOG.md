@@ -28,6 +28,8 @@ bug using different logger to print & diff only can produce confusing result
 
 ### Added
 
+- golden-output tests for the three demo scripts that had lacked one — `examples/ansi/ansi-tt-demo.py`, `examples/ansi/ansi-style-demo.py`, and `examples/verbosity_demo.py` (`tests/ansi/demo/`, `tests/v/demo/`) — closing the `TODO` gaps each script carried
+
 ### Changed
 
 - verbosity CLI help text — tightened phrasing on the step verbose/quiet flags, and dropped the dynamic option-name interpolation from the max verbose/max quiet flags' help strings
