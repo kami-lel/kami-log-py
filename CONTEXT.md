@@ -1,6 +1,6 @@
 # kamilog CONTEXT
 
-*Last updated: 2026-07-28 - v2.9.1*
+*Last updated: 2026-08-05 - v2.9.2*
 
 ## Project Overview
 
@@ -27,8 +27,10 @@ kamilog/
 │   │   ├── v-calc_verbosity_test.py
 │   │   ├── v-calc_logging_level_test.py
 │   │   ├── v-calc_logging_level_namespace_test.py
-│   │   └── v-set_logging_level_by_namespace_test.py
+│   │   ├── v-set_logging_level_by_namespace_test.py
+│   │   └── demo/                    # golden-output tests for examples/verbosity_demo.py
 │   ├── ansi/                        # AnsiRenderer / TTY detection test suite
+│   │   └── demo/                    # golden-output tests for examples/ansi/*
 │   ├── lf/                          # _LogFormatter / _LogFormatEngine test suite
 │   ├── logger/                      # KamiLogger behavior test suite
 │   │   └── demo/                    # golden-output tests for examples/logger/*
